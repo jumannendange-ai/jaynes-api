@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: jaynes-api
+    runtime: php
+    plan: free
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: php -S 0.0.0.0:$PORT -t public
+    envVars:
+      - key: SUPABASE_URL
+        value: https://dablnrggyfcddmdeiqxi.supabase.co
+      - key: SUPABASE_KEY
+        value: sb_publishable_d8mzJ3iulCU7YdlV_lrdQw_32pOzDXc
+      - key: SUPABASE_SERVICE_KEY
+        value: sb_secret_VlGl6UXSTT8CB_YIqJZ-zw_anyyL2d2
+      - key: ADMIN_KEY
+        value: JaynesAdmin@2025!ConfirmKey
+      - key: APP_ENV
+        value: production

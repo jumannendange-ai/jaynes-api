@@ -1,0 +1,13 @@
+{
+  "name": "jaynestv/api",
+  "description": "JAYNES MAX TV — Backend API",
+  "type": "project",
+  "require": {
+    "php": ">=8.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "JaynesTV\\": "src/"
+    }
+  }
+}
