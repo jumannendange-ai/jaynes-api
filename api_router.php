@@ -15,8 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once __DIR__ . '/../src/config.php';
-require_once __DIR__ . '/../src/helpers.php';
+require_once __DIR__ . '/src/config.php';
+require_once __DIR__ . '/src/helpers.php';
 
 // ── Router ────────────────────────────────────────────────────────
 $uri    = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
