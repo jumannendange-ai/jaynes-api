@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ingia — JAYNES MAX TV</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+<style>
+body{padding:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(ellipse at 30% 20%,#0d0020 0%,#050510 55%,#000 100%);}
+#bgCanvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+.auth-wrap{position:relative;z-index:1;width:100%;max-width:400px;padding:20px;animation:fadeUp 0.5s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.auth-logo{text-align:center;margin-bottom:28px;}
+.auth-logo h1{font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:5px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+.auth-logo p{color:var(--muted);font-size:11px;letter-spacing:4px;text-transform:uppercase;margin-top:5px;}
+.auth-card{background:rgba(12,12,28,0.98);border:1px solid var(--border);border-radius:20px;padding:32px 24px;box-shadow:0 0 60px rgba(0,212,255,0.08);}
+.tabs{display:flex;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:22px;}
+.tab{flex:1;padding:11px;text-align:center;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;transition:all 0.3s;letter-spacing:0.5px;}
+.tab.active{background:var(--accent);color:#000;}
+.tab:not(.active):hover{color:var(--text);background:rgba(255,255,255,0.04);}
+.inp-grp{position:relative;margin-bottom:12px;}
+.inp-grp i.icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;}
+.inp-grp input{width:100%;padding:13px 13px 13px 40px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;color:var(--text);font-size:14px;font-family:'Outfit',sans-serif;outline:none;transition:all 0.25s;}
+.inp-grp input:focus{border-color:var(--accent);background:rgba(0,212,255,0.04);box-shadow:0 0 0 3px rgba(0,212,255,0.1);}
+.inp-grp input::placeholder{color:var(--muted);}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted);cursor:pointer;font-size:13px;padding:4px;transition:color 0.2s;}
+.eye-btn:hover{color:var(--accent);}
+.strength-wrap{display:none;margin-top:-6px;margin-bottom:10px;}
+.strength-bar{height:3px;border-radius:2px;background:rgba(255,255,255,0.08);overflow:hidden;margin-bottom:3px;}
+.strength-fill{height:100%;border-radius:2px;transition:all 0.3s;width:0%;}
+.strength-lbl{font-size:10px;color:var(--muted);}
+.msg-box{font-size:12px;text-align:center;padding:9px 12px;border-radius:10px;margin-bottom:12px;display:none;align-items:center;gap:8px;}
+.msg-box.error{background:rgba(255,68,102,0.1);border:1px solid rgba(255,68,102,0.25);color:#ff6688;}
+.msg-box.success{background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.2);color:var(--green);}
+.msg-box.show{display:flex;}
+.forgot-link{text-align:right;margin-top:-4px;margin-bottom:14px;font-size:12px;color:var(--muted);}
+.forgot-link span{color:var(--accent);cursor:pointer;}
+.forgot-link span:hover{text-decoration:underline;}
+.auth-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),#0088bb);border:none;border-radius:12px;color:#000;font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;letter-spacing:1px;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;}
+.auth-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,212,255,0.35);}
+.auth-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+.spinner-sm{width:16px;height:16px;border:2px solid rgba(0,0,0,0.3);border-top-color:#000;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.auth-btn.loading .spinner-sm{display:inline-block;}
+.auth-btn.loading .btn-txt{display:none;}
+.divider{display:flex;align-items:center;gap:10px;margin:18px 0;color:var(--muted);font-size:12px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.08);}
+.google-btn{width:100%;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:var(--text);font-size:14px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:10px;}
+.google-btn:hover{background:rgba(255,255,255,0.09);border-color:rgba(255,255,255,0.22);transform:translateY(-1px);}
+.google-btn svg{width:18px;height:18px;flex-shrink:0;}
+.reset-panel{display:none;}
+.reset-panel.show{display:block;}
+.back-link{color:var(--accent);font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;margin-bottom:16px;}
+.back-link:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<div class="toast" id="toast"></div>
+
+<div class="auth-wrap">
+  <div class="auth-logo">
+    <h1>JAYNES MAX TV</h1>
+    <p>Stream · Live · Enjoy</p>
+  </div>
+
+  <div class="auth-card">
+    <!-- MSG -->
+    <div class="msg-box error" id="msgBox"><i class="fa fa-circle-exclamation"></i><span id="msgTxt"></span></div>
+
+    <!-- MAIN PANEL -->
+    <div id="mainPanel">
+      <div class="tabs">
+        <div class="tab active" id="tabLogin" onclick="switchTab('login')">INGIA</div>
+        <div class="tab"        id="tabReg"   onclick="switchTab('register')">JIANDIKISHE</div>
+      </div>
+
+      <div class="inp-grp" id="nameGrp" style="display:none">
+        <i class="fa fa-user icon"></i>
+        <input type="text" id="inpName" placeholder="Jina Kamili" autocomplete="name">
+      </div>
+      <div class="inp-grp">
+        <i class="fa fa-envelope icon"></i>
+        <input type="email" id="inpEmail" placeholder="Barua pepe (email)" autocomplete="email">
+      </div>
+      <div class="inp-grp">
+        <i class="fa fa-lock icon"></i>
+        <input type="password" id="inpPass" placeholder="Nywila (password)" autocomplete="current-password">
+        <span class="eye-btn" onclick="toggleEye()"><i class="fa fa-eye" id="eyeIcon"></i></span>
+      </div>
+
+      <div class="strength-wrap" id="strengthWrap">
+        <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+        <div class="strength-lbl" id="strengthLbl"></div>
+      </div>
+
+      <div class="forgot-link" id="forgotWrap">
+        Umesahau nywila? <span onclick="showReset()">Bonyeza hapa</span>
+      </div>
+
+      <button class="auth-btn" id="authBtn" onclick="doAuth()">
+        <div class="spinner-sm"></div>
+        <span class="btn-txt" id="btnTxt">INGIA</span>
+      </button>
+
+      <div class="divider">au endelea na</div>
+
+      <button class="google-btn" onclick="googleLogin()">
+        <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        Endelea na Google
+      </button>
+    </div>
+
+    <!-- RESET PASSWORD PANEL -->
+    <div id="resetPanel" class="reset-panel">
+      <span class="back-link" onclick="hideReset()"><i class="fa fa-arrow-left"></i> Rudi kuingia</span>
+      <div class="inp-grp">
+        <i class="fa fa-envelope icon"></i>
+        <input type="email" id="resetEmail" placeholder="Barua pepe yako" autocomplete="email">
+      </div>
+      <button class="auth-btn" id="resetBtn" onclick="doReset()">
+        <div class="spinner-sm"></div>
+        <span class="btn-txt">TUMA BARUA YA RESET</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ── PARTICLES ── */
+const cv=document.getElementById('bgCanvas'),cx=cv.getContext('2d');
+function rsz(){cv.width=innerWidth;cv.height=innerHeight;}rsz();window.addEventListener('resize',rsz);
+const pts=Array.from({length:55},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.4+0.3,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,a:Math.random()*Math.PI*2}));
+(function draw(){cx.clearRect(0,0,cv.width,cv.height);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.a+=.008;if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;cx.save();cx.globalAlpha=.18+.2*Math.sin(p.a);cx.fillStyle='#00d4ff';cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fill();cx.restore();});requestAnimationFrame(draw);})();
+
+/* ── AUTO-REDIRECT IK LOGGED IN ── */
+(function(){
+  const token = localStorage.getItem('jaynesToken');
+  const email = localStorage.getItem('jaynesEmail');
+  if (!token || !email) return;
+  fetch('https://dde.ct.ws/auth.php?action=me', { headers:{'Authorization':'Bearer '+token} })
+    .then(r=>r.json())
+    .then(d=>{ if(d.success) location.href='home.html'; })
+    .catch(()=>{});
+})();
+
+/* ── STATE ── */
+let mode = 'login';
+
+function switchTab(m) {
+  mode = m;
+  document.getElementById('tabLogin').classList.toggle('active', m==='login');
+  document.getElementById('tabReg').classList.toggle('active',   m==='register');
+  document.getElementById('nameGrp').style.display      = m==='register' ? 'block' : 'none';
+  document.getElementById('forgotWrap').style.display   = m==='login'    ? 'block' : 'none';
+  document.getElementById('strengthWrap').style.display = 'none';
+  document.getElementById('btnTxt').textContent = m==='login' ? 'INGIA' : 'JIANDIKISHE';
+  document.getElementById('inpPass').autocomplete = m==='login' ? 'current-password' : 'new-password';
+  hideMsg();
+}
+
+function toggleEye() {
+  const inp=document.getElementById('inpPass'), icon=document.getElementById('eyeIcon');
+  const show=inp.type==='password';
+  inp.type=show?'text':'password';
+  icon.className=show?'fa fa-eye-slash':'fa fa-eye';
+}
+
+/* Password strength */
+document.getElementById('inpPass').addEventListener('input', function() {
+  if (mode !== 'register') return;
+  const v=this.value;
+  document.getElementById('strengthWrap').style.display=v?'block':'none';
+  let s=0;
+  if(v.length>=6)s++; if(v.length>=10)s++;
+  if(/[A-Z]/.test(v))s++; if(/[0-9]/.test(v))s++; if(/[^A-Za-z0-9]/.test(v))s++;
+  const colors=['#ff4466','#ff8800','#ffd700','#00ff88','#00d4ff'];
+  const labels=['Dhaifu sana','Dhaifu','Ya kati','Nzuri','Imara sana'];
+  document.getElementById('strengthFill').style.cssText=`width:${s*20}%;background:${colors[s-1]||'#ff4466'}`;
+  document.getElementById('strengthLbl').textContent=labels[s-1]||'Weka nywila';
+});
+
+function showMsg(txt, type='error') {
+  const b=document.getElementById('msgBox');
+  document.getElementById('msgTxt').textContent=txt;
+  b.className='msg-box '+type+' show';
+}
+function hideMsg() { document.getElementById('msgBox').classList.remove('show'); }
+
+function setLoading(id, on) {
+  const btn=document.getElementById(id);
+  btn.classList.toggle('loading',on);
+  btn.disabled=on;
+}
+
+function saveSession(user, token, refresh) {
+  localStorage.setItem('jaynesEmail',        user.email     || '');
+  localStorage.setItem('jaynesUser',         'ok');
+  localStorage.setItem('jaynesName',         user.name      || '');
+  localStorage.setItem('jaynesUid',          user.id        || '');
+  localStorage.setItem('jaynesToken',        token          || '');
+  localStorage.setItem('jaynesRefreshToken', refresh        || '');
+  localStorage.setItem('jaynesPlan',         user.plan      || 'free');
+  localStorage.setItem('jaynesProvider',     user.provider  || 'email');
+  if (user.trial_end)  localStorage.setItem('jaynesTrialEnd',  user.trial_end);
+  if (user.sub_end)    localStorage.setItem('jaynesSubEnd',    user.sub_end);
+  if (user.created_at) localStorage.setItem('jaynesCreatedAt', user.created_at);
+
+  // Angalia mara moja kama user wa zamani — futa trial yao
+  if (user.created_at) {
+    const regDate = new Date(user.created_at);
+    const today   = new Date();
+    const isToday = (
+      regDate.getFullYear() === today.getFullYear() &&
+      regDate.getMonth()    === today.getMonth()    &&
+      regDate.getDate()     === today.getDate()
+    );
+    if (!isToday) {
+      // User wa zamani — hakuna trial, lazima alipie
+      const plan   = user.plan   || 'free';
+      const subEnd = user.sub_end || '';
+      const hasPremium = plan === 'premium' && subEnd && new Date(subEnd) > new Date();
+      if (!hasPremium) {
+        // Futa trial — weka expired
+        localStorage.setItem('jaynesTrialEnd', new Date(Date.now() - 1000).toISOString());
+      }
+    }
+  }
+}
+
+/* ── MAIN AUTH ── */
+async function doAuth() {
+  hideMsg();
+  const email = document.getElementById('inpEmail').value.trim();
+  const pass  = document.getElementById('inpPass').value;
+  const name  = document.getElementById('inpName').value.trim();
+
+  if (!email)          { showMsg('Weka email yako!'); return; }
+  if (!pass)           { showMsg('Weka nywila yako!'); return; }
+  if (pass.length < 6) { showMsg('Nywila lazima iwe herufi 6 au zaidi!'); return; }
+  if (mode==='register' && !name) { showMsg('Weka jina lako kamili!'); return; }
+
+  setLoading('authBtn', true);
+  try {
+    const res  = await fetch('https://dde.ct.ws/auth.php?action='+mode, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email, password:pass, name}),
+    });
+    const data = await res.json();
+
+    if (!data.success) { showMsg(data.error||'Imeshindwa. Jaribu tena.'); return; }
+
+    if (mode==='register') {
+      saveSession(data.user, data.token, data.refresh_token);
+      showMsg('✅ Umesajiliwa kwenye JAYNES MAX TV! Una dakika 30 za majaribio.', 'success');
+      const next = new URLSearchParams(location.search).get('next') || 'home.html';
+      setTimeout(()=>location.href=next, 900);
+    } else {
+      saveSession(data.user, data.token, data.refresh_token);
+      const uname = (data.user.name||'').split(' ')[0] || 'Karibu';
+      showMsg('✅ Karibu ' + uname + ' — JAYNES MAX TV!', 'success');
+      const next = new URLSearchParams(location.search).get('next') || 'home.html';
+      setTimeout(()=>location.href=next, 800);
+    }
+  } catch(e) {
+    showMsg('Imeshindwa kuunganika na server. Jaribu tena.');
+  } finally {
+    setLoading('authBtn', false);
+  }
+}
+
+/* ── GOOGLE ── */
+function googleLogin() {
+  // Pata Supabase OAuth URL kwanza, kisha fungua kwenye browser ya nje
+  // Hii inaepuka Error 403: disallowed_useragent (WebView hairuhusiwi na Google)
+  const SB  = 'https://dablnrggyfcddmdeiqxi.supabase.co';
+  const KEY = 'sb_publishable_d8mzJ3iulCU7YdlV_lrdQw_32pOzDXc';
+  const redirectTo = encodeURIComponent(window.location.origin + '/oauth_callback.html');
+  const oauthUrl   = `${SB}/auth/v1/authorize?provider=google&redirect_to=${redirectTo}`;
+
+  // Jaribu kufungua Chrome/browser ya nje
+  // Intent URL inafanya kazi kwenye Android WebView
+  const isAndroid  = /android/i.test(navigator.userAgent);
+  const isWebView  = /wv|WebView/.test(navigator.userAgent) ||
+                     (isAndroid && !/chrome/i.test(navigator.userAgent));
+
+  if (isWebView && isAndroid) {
+    // Android WebView — tumia intent ya Chrome
+    const chromeUrl = 'intent://' + oauthUrl.replace('https://', '') +
+      '#Intent;scheme=https;package=com.android.chrome;end';
+    window.location.href = chromeUrl;
+  } else if (isWebView) {
+    // iOS WebView — tumia window.open
+    window.open(oauthUrl, '_system') || (window.location.href = oauthUrl);
+  } else {
+    // Browser ya kawaida — nenda moja kwa moja
+    window.location.href = oauthUrl;
+  }
+}
+
+/* ── RESET ── */
+function showReset() {
+  document.getElementById('mainPanel').style.display='none';
+  document.getElementById('resetPanel').classList.add('show');
+  hideMsg();
+}
+function hideReset() {
+  document.getElementById('mainPanel').style.display='block';
+  document.getElementById('resetPanel').classList.remove('show');
+  hideMsg();
+}
+async function doReset() {
+  const email=document.getElementById('resetEmail').value.trim();
+  if (!email) { showMsg('Weka email yako!'); return; }
+  setLoading('resetBtn',true);
+  try {
+    const res=await fetch('https://dde.ct.ws/auth.php?action=reset_password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});
+    const data=await res.json();
+    showMsg(data.message||'Barua imetumwa!','success');
+    setTimeout(hideReset,3000);
+  } catch(e){showMsg('Tatizo la mtandao.');}
+  finally{setLoading('resetBtn',false);}
+}
+
+/* Enter key */
+document.addEventListener('keypress',e=>{
+  if(e.key!=='Enter')return;
+  document.getElementById('resetPanel').classList.contains('show')?doReset():doAuth();
+});
+</script>
+</body>
+</html>

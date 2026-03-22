@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JAYNES MAX TV</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;}
+#bgCanvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;}
+#intro{
+  position:fixed;inset:0;
+  background:radial-gradient(ellipse at 30% 40%,#0d0028 0%,#050510 60%,#000 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:10;overflow:hidden;
+}
+.ring{position:absolute;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);border:1px solid rgba(0,212,255,0.1);animation:ringPulse 3.5s ease-in-out infinite;}
+.ring:nth-child(1){width:420px;height:420px;animation-delay:0s;}
+.ring:nth-child(2){width:310px;height:310px;animation-delay:0.6s;border-color:rgba(255,68,102,0.1);}
+.ring:nth-child(3){width:200px;height:200px;animation-delay:1.2s;border-color:rgba(0,212,255,0.15);}
+@keyframes ringPulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.4;}50%{transform:translate(-50%,-50%) scale(1.06);opacity:1;}}
+.intro-content{position:relative;z-index:2;text-align:center;padding:0 20px;}
+.logo-line{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,11vw,64px);letter-spacing:7px;line-height:1;margin-bottom:6px;}
+.intro-letter{display:inline-block;opacity:0;animation:letterDrop 0.55s cubic-bezier(0.34,1.56,0.64,1) forwards;}
+.intro-letter.cyan{background:linear-gradient(160deg,#00d4ff,#ffffff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.intro-letter.red {background:linear-gradient(160deg,#ff4466,#ff9aaa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.intro-letter.blue{background:linear-gradient(160deg,#00aaff,#00d4ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+@keyframes letterDrop{from{opacity:0;transform:translateY(-50px) rotateX(-40deg);filter:blur(5px);}to{opacity:1;transform:none;filter:blur(0);}}
+.tagline{font-family:'Outfit',sans-serif;font-size:11px;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:32px;opacity:0;animation:fadeUp 0.6s 1.5s forwards;}
+#welcomeText{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,15vw,88px);letter-spacing:12px;background:linear-gradient(135deg,#00d4ff 0%,#ffffff 40%,#ff4466 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;transform:scale(0.4) translateY(20px);animation:welcomePop 0.75s 2.8s cubic-bezier(0.34,1.56,0.64,1) forwards;margin-bottom:10px;}
+@keyframes welcomePop{to{opacity:1;transform:scale(1) translateY(0);}}
+#enterBtn{background:linear-gradient(135deg,#00d4ff,#0077aa);border:none;border-radius:30px;color:#000;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:4px;padding:14px 44px;cursor:pointer;opacity:0;animation:fadeUp 0.6s 3.4s forwards;box-shadow:0 10px 35px rgba(0,212,255,0.3);transition:transform 0.2s,box-shadow 0.2s;}
+#enterBtn:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(0,212,255,0.45);}
+#progressBar{position:fixed;bottom:0;left:0;height:3px;background:linear-gradient(90deg,#00d4ff,#ff4466);width:0%;z-index:20;box-shadow:0 0 10px rgba(0,212,255,0.5);transition:width 0.08s linear;}
+#intro.leaving{animation:introLeave 0.7s ease forwards;}
+@keyframes introLeave{to{opacity:0;transform:scale(1.04);filter:blur(4px);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<div id="progressBar"></div>
+<div id="intro">
+  <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+  <div class="intro-content">
+    <div class="logo-line">
+      <span class="intro-letter cyan" style="animation-delay:.04s">J</span><span class="intro-letter cyan" style="animation-delay:.10s">A</span><span class="intro-letter cyan" style="animation-delay:.16s">Y</span><span class="intro-letter cyan" style="animation-delay:.22s">N</span><span class="intro-letter cyan" style="animation-delay:.28s">E</span><span class="intro-letter cyan" style="animation-delay:.34s">S</span>
+      <span style="display:inline-block;width:14px;"></span>
+      <span class="intro-letter red"  style="animation-delay:.52s">M</span><span class="intro-letter red"  style="animation-delay:.58s">A</span><span class="intro-letter red"  style="animation-delay:.64s">X</span>
+      <span style="display:inline-block;width:14px;"></span>
+      <span class="intro-letter blue" style="animation-delay:.80s">T</span><span class="intro-letter blue" style="animation-delay:.86s">V</span>
+    </div>
+    <div class="tagline">Stream &bull; Live &bull; Enjoy</div>
+    <div id="welcomeText">WELCOME</div>
+    <button id="enterBtn" onclick="goHome()">INGIA NDANI &rarr;</button>
+  </div>
+</div>
+<script>
+const canvas=document.getElementById('bgCanvas'),ctx=canvas.getContext('2d');
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight;}
+resize();window.addEventListener('resize',resize);
+const stars=Array.from({length:80},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.5+0.3,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()*Math.PI*2,col:Math.random()>.7?'#ff4466':'#00d4ff'}));
+(function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);stars.forEach(s=>{s.x+=s.vx;s.y+=s.vy;s.a+=.01;if(s.x<0)s.x=canvas.width;if(s.x>canvas.width)s.x=0;if(s.y<0)s.y=canvas.height;if(s.y>canvas.height)s.y=0;ctx.save();ctx.globalAlpha=.12+.28*Math.abs(Math.sin(s.a));ctx.fillStyle=s.col;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();ctx.restore();});requestAnimationFrame(draw);})();
+const TOTAL=5000,bar=document.getElementById('progressBar');
+let elapsed=0;
+const ticker=setInterval(()=>{elapsed+=60;bar.style.width=Math.min((elapsed/TOTAL)*100,100)+'%';if(elapsed>=TOTAL){clearInterval(ticker);goHome();}},60);
+function goHome(){clearInterval(ticker);bar.style.width='100%';document.getElementById('intro').classList.add('leaving');setTimeout(()=>location.href='home.html',700);}
+</script>
+</body>
+</html>

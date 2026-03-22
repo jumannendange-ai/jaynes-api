@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inaingia... — JAYNES MAX TV</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body { display:flex; align-items:center; justify-content:center; min-height:100vh; background:var(--bg); }
+.box { text-align:center; padding:30px; }
+.logo { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:4px;
+        background:linear-gradient(135deg,#00d4ff,#ff4466);
+        -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+        background-clip:text; margin-bottom:24px; }
+.spinner { width:48px; height:48px; border:3px solid rgba(0,212,255,0.1);
+           border-top-color:#00d4ff; border-radius:50%;
+           animation:spin 0.75s linear infinite; margin:0 auto 20px; }
+@keyframes spin { to { transform:rotate(360deg) } }
+.msg { color:#7788aa; font-size:14px; margin-top:8px; }
+.err { color:#ff4466; font-size:13px; margin-top:12px;
+       background:rgba(255,68,102,0.08); border:1px solid rgba(255,68,102,0.2);
+       border-radius:10px; padding:10px 16px; display:none; }
+.back-link { display:inline-block; margin-top:16px; color:#00d4ff;
+             font-size:13px; text-decoration:none; display:none; }
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="logo">JAYNES MAX TV</div>
+  <div class="spinner" id="spin"></div>
+  <p class="msg" id="msg">Inakamilisha kuingia kwa Google...</p>
+  <div class="err" id="err"></div>
+  <a href="login.html" class="back-link" id="backLink">← Rudi Login</a>
+</div>
+
+<script>
+const SB_URL = 'https://dablnrggyfcddmdeiqxi.supabase.co';
+const SB_KEY = 'sb_publishable_d8mzJ3iulCU7YdlV_lrdQw_32pOzDXc';
+
+function showError(msg) {
+  document.getElementById('spin').style.display = 'none';
+  document.getElementById('msg').textContent = 'Imeshindwa kuingia.';
+  const err = document.getElementById('err');
+  err.textContent = msg;
+  err.style.display = 'block';
+  document.getElementById('backLink').style.display = 'inline-block';
+}
+
+async function handleCallback() {
+  // ── 1. Soma token kutoka URL fragment (#access_token=...)
+  const hash   = window.location.hash.substring(1);
+  const params = new URLSearchParams(hash);
+  let accessToken  = params.get('access_token');
+  let refreshToken = params.get('refresh_token') || '';
+  const errorDesc  = params.get('error_description');
+
+  // ── 2. Kama fragment haina token, angalia query string
+  if (!accessToken) {
+    const qp = new URLSearchParams(window.location.search);
+    accessToken  = qp.get('access_token');
+    refreshToken = qp.get('refresh_token') || '';
+    const qError = qp.get('error_description') || qp.get('error');
+    if (!accessToken) {
+      showError(qError || errorDesc || 'Token haikupatikana. Jaribu tena.');
+      return;
+    }
+  }
+
+  document.getElementById('msg').textContent = 'Inapata maelezo ya akaunti...';
+
+  try {
+    // ── 3. Pata user info kutoka Supabase
+    const userRes = await fetch(`${SB_URL}/auth/v1/user`, {
+      headers: {
+        'apikey':        SB_KEY,
+        'Authorization': 'Bearer ' + accessToken,
+      }
+    });
+
+    if (!userRes.ok) {
+      const e = await userRes.json();
+      showError(e.message || 'Supabase haikukubali token. Jaribu tena.');
+      return;
+    }
+
+    const user = await userRes.json();
+    if (!user.id) { showError('Akaunti haikupatikana. Jaribu tena.'); return; }
+
+    const name = user.user_metadata?.full_name
+              || user.user_metadata?.name
+              || user.email.split('@')[0];
+
+    document.getElementById('msg').textContent = 'Inahifadhi session...';
+
+    // ── 4. Angalia/unda profile kwenye DB (kwa Google user wa kwanza)
+    const profileRes = await fetch(
+      `${SB_URL}/rest/v1/profiles?id=eq.${user.id}&select=plan,trial_end,sub_end`, {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + accessToken }
+    });
+
+    let plan = 'free', trialEnd = '', subEnd = '';
+
+    if (profileRes.ok) {
+      const profiles = await profileRes.json();
+      if (profiles.length > 0) {
+        plan      = profiles[0].plan      || 'free';
+        trialEnd  = profiles[0].trial_end || '';
+        subEnd    = profiles[0].sub_end   || '';
+      } else {
+        // New Google user — unda profile na trial siku 3
+        const te = new Date(Date.now() + 30 * 60 * 1000).toISOString(); // dakika 30
+        await fetch(`${SB_URL}/rest/v1/profiles`, {
+          method: 'POST',
+          headers: {
+            'apikey':        SB_KEY,
+            'Authorization': 'Bearer ' + accessToken,
+            'Content-Type':  'application/json',
+            'Prefer':        'return=minimal',
+          },
+          body: JSON.stringify({
+            id:         user.id,
+            email:      user.email,
+            full_name:  name,
+            plan:       'trial',
+            trial_end:  te,
+            created_at: new Date().toISOString(),
+          }),
+        });
+        plan     = 'trial';
+        trialEnd = te;
+      }
+    }
+
+    // ── 5. Hifadhi session localStorage
+    localStorage.setItem('jaynesEmail',        user.email);
+    localStorage.setItem('jaynesUser',         'ok');
+    localStorage.setItem('jaynesName',         name);
+    localStorage.setItem('jaynesUid',          user.id);
+    localStorage.setItem('jaynesToken',        accessToken);
+    localStorage.setItem('jaynesRefreshToken', refreshToken);
+    localStorage.setItem('jaynesPlan',         plan);
+    localStorage.setItem('jaynesProvider',     'google');
+    if (trialEnd) localStorage.setItem('jaynesTrialEnd', trialEnd);
+    if (subEnd)   localStorage.setItem('jaynesSubEnd',   subEnd);
+    // Reset check timer ili auth_guard aipatie data mpya
+    localStorage.removeItem('jaynesLastCheck');
+
+    document.getElementById('msg').textContent = '✅ Umeingia! Inaelekeza...';
+    document.getElementById('spin').style.display = 'none';
+
+    // ── 6. Elekeza nyumbani
+    setTimeout(() => {
+      const next = new URLSearchParams(window.location.search).get('next') || 'home.html';
+      // Kama tumefunguliwa kwenye Chrome ya nje (kutoka WebView intent)
+      // jaribu kurudi kwenye app URL moja kwa moja
+      window.location.replace(next);
+    }, 800);
+
+  } catch(e) {
+    showError('Tatizo la mtandao: ' + (e.message || 'Jaribu tena.'));
+  }
+}
+
+handleCallback();
+</script>
+</body>
+</html>

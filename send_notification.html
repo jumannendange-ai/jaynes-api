@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JAYNES MAX TV - Send Notification</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:#080810;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.container{width:100%;max-width:480px;}
+.logo{text-align:center;margin-bottom:30px;}
+.logo h1{font-size:28px;font-weight:700;letter-spacing:3px;}
+.logo h1 span.j{color:#00d4ff;}
+.logo h1 span.m{color:#ff4466;}
+.logo p{color:#666;font-size:12px;letter-spacing:2px;margin-top:5px;}
+.card{background:#0f0f1e;border:1px solid rgba(0,212,255,0.15);border-radius:20px;padding:30px;}
+.card h2{font-size:18px;font-weight:600;margin-bottom:24px;color:#00d4ff;}
+.form-group{margin-bottom:16px;}
+label{display:block;font-size:13px;color:#888;margin-bottom:8px;letter-spacing:1px;}
+input,textarea,select{width:100%;padding:13px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;font-size:14px;font-family:'Outfit',sans-serif;outline:none;transition:all 0.3s;}
+input:focus,textarea:focus,select:focus{border-color:#00d4ff;background:rgba(0,212,255,0.05);}
+textarea{resize:vertical;min-height:100px;}
+select option{background:#0f0f1e;color:#fff;}
+.btn{width:100%;padding:15px;background:linear-gradient(135deg,#00d4ff,#0077aa);border:none;border-radius:12px;color:#000;font-size:16px;font-weight:700;font-family:'Outfit',sans-serif;letter-spacing:1px;cursor:pointer;transition:all 0.3s;margin-top:8px;}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,212,255,0.4);}
+.btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.status{margin-top:16px;padding:14px;border-radius:12px;font-size:14px;text-align:center;display:none;}
+.status.success{background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:#00ff88;}
+.status.error{background:rgba(255,68,102,0.1);border:1px solid rgba(255,68,102,0.3);color:#ff4466;}
+.templates{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.tpl{padding:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;cursor:pointer;font-size:12px;text-align:center;transition:all 0.2s;}
+.tpl:hover{border-color:#00d4ff;color:#00d4ff;}
+.divider{text-align:center;color:#444;font-size:12px;margin:16px 0;position:relative;}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:#222;}
+.divider::before{left:0;}
+.divider::after{right:0;}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="logo">
+    <h1><span class="j">JAYNES</span> <span class="m">MAX</span> TV</h1>
+    <p>NOTIFICATION CENTER</p>
+  </div>
+
+  <div class="card">
+    <h2>📣 Tuma Notification</h2>
+
+    <div class="form-group">
+      <label>TEMPLATES ZA HARAKA</label>
+      <div class="templates">
+        <div class="tpl" onclick="setTemplate('⚽ Mechi Inaanza!','Mechi inaanza sasa - Angalia LIVE!')">⚽ Mechi Live</div>
+        <div class="tpl" onclick="setTemplate('📺 Channel Mpya!','Channel mpya imeongezwa kwenye JAYNES MAX TV')">📺 Channel Mpya</div>
+        <div class="tpl" onclick="setTemplate('🎬 Sinema Mpya!','Sinema mpya inapatikana sasa hivi!')">🎬 Sinema</div>
+        <div class="tpl" onclick="setTemplate('⚠️ Matengenezo','Tutafanya matengenezo mfupi - Tutarudi hivi karibuni')">⚠️ Matengenezo</div>
+      </div>
+    </div>
+
+    <div class="divider">au andika mwenyewe</div>
+
+    <div class="form-group">
+      <label>KICHWA (TITLE)</label>
+      <input type="text" id="title" placeholder="Mfano: JAYNES MAX TV" value="JAYNES MAX TV">
+    </div>
+
+    <div class="form-group">
+      <label>UJUMBE</label>
+      <textarea id="message" placeholder="Andika ujumbe wako hapa..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>TUMA KWA</label>
+      <select id="segment">
+        <option value="All">Watumiaji Wote</option>
+        <option value="Active Users">Watumiaji Wanaotumia App</option>
+        <option value="Inactive Users">Watumiaji Wasiofanya Kazi</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>URL YA KUFUNGUA (optional)</label>
+      <input type="text" id="url" placeholder="https://dde.ct.ws/">
+    </div>
+
+    <button class="btn" onclick="sendNotification()" id="sendBtn">
+      🚀 TUMA NOTIFICATION
+    </button>
+
+    <div class="status" id="status"></div>
+  </div>
+</div>
+
+<script>
+const APP_ID = "10360777-3ada-4145-b83f-00eb0312a53f";
+const REST_API_KEY = "os_v2_app_ca3ao5z23jaulob7advqgevfh4qctlprzdauupekggukcgwmz5glfzdu6lkvnkzjeuno3cuuqow7fklo3fehp2puu52sr7sroo63hwy";
+
+function setTemplate(title, message) {
+  document.getElementById('title').value = title;
+  document.getElementById('message').value = message;
+}
+
+async function sendNotification() {
+  const title = document.getElementById('title').value.trim();
+  const message = document.getElementById('message').value.trim();
+  const segment = document.getElementById('segment').value;
+  const url = document.getElementById('url').value.trim();
+  const btn = document.getElementById('sendBtn');
+  const status = document.getElementById('status');
+
+  if (!title || !message) {
+    showStatus('error', '❌ Tafadhali andika kichwa na ujumbe!');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Inatuma...';
+
+  const payload = {
+    app_id: APP_ID,
+    included_segments: [segment],
+    headings: { en: title, sw: title },
+    contents: { en: message, sw: message },
+  };
+
+  if (url) payload.url = url;
+
+  try {
+    const response = await fetch('https://onesignal.com/api/v1/notifications', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${REST_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+
+    if (data.id) {
+      showStatus('success', `✅ Notification imetumwa! Watu: ${data.recipients || 0}`);
+      document.getElementById('message').value = '';
+    } else {
+      showStatus('error', '❌ Kosa: ' + (data.errors?.[0] || 'Jaribu tena'));
+    }
+  } catch (err) {
+    showStatus('error', '❌ Kosa la mtandao - Jaribu tena');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🚀 TUMA NOTIFICATION';
+}
+
+function showStatus(type, message) {
+  const status = document.getElementById('status');
+  status.className = `status ${type}`;
+  status.textContent = message;
+  status.style.display = 'block';
+  setTimeout(() => status.style.display = 'none', 5000);
+}
+</script>
+</body>
+</html>

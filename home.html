@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JAYNES MAX TV — Nyumbani</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+<style>
+/* Canvas ya nyuma */
+#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.3;}
+#app{position:relative;z-index:1;}
+
+/* Category grid */
+.categories{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;padding:0 12px 14px;}
+.cat-card{background:var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:14px;overflow:hidden;cursor:pointer;position:relative;opacity:0;transform:translateY(16px);transition:opacity 0.4s,transform 0.4s,box-shadow 0.3s;}
+.cat-card.visible{opacity:1;transform:translateY(0);}
+.cat-card:hover{border-color:var(--accent);box-shadow:var(--glow);transform:translateY(-3px);}
+.cat-card img{width:100%;height:108px;object-fit:cover;transition:transform 0.3s;display:block;}
+.cat-card:hover img{transform:scale(1.05);}
+.cat-info{padding:9px 11px;}
+.cat-info h4{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:2px;}
+.cat-info p{font-size:11px;color:var(--muted);}
+.cat-badge{position:absolute;top:8px;right:8px;background:var(--accent2);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;}
+@media(min-width:600px){.categories{grid-template-columns:repeat(3,1fr);}}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<div class="toast" id="toast"></div>
+
+<div id="app">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="logo">⚡ JAYNES</div>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Tafuta vipindi, channels...">
+      <button id="searchBtn"><i class="fa fa-search"></i></button>
+    </div>
+    <a href="account.php" class="icon-btn"><i class="fa fa-user"></i></a>
+  </div>
+
+  <!-- QUICK ACCESS -->
+  <div class="section-title" style="padding-top:8px">HARAKA</div>
+  <div class="quick-row">
+    <a href="live.php"     class="quick-btn"><i class="fa fa-futbol"></i><span>Mechi</span></a>
+    <a href="face.php"     class="quick-btn"><i class="fa fa-satellite-dish"></i><span>Azam</span></a>
+    <a href="home.php"     class="quick-btn"><i class="fa fa-globe"></i><span>Global</span></a>
+    <a href="local.php"    class="quick-btn"><i class="fa fa-tv"></i><span>NBC</span></a>
+    <a href="local2.php"   class="quick-btn"><i class="fa fa-signal"></i><span>Local 2</span></a>
+    <a href="schedule.php" class="quick-btn"><i class="fa fa-calendar-days"></i><span>Ratiba</span></a>
+    <a href="malipo.php"   class="quick-btn"><i class="fa fa-credit-card"></i><span>Malipo</span></a>
+  </div>
+
+  <!-- SLIDER -->
+  <div class="section-title"><span class="live-dot"></span> INAYOENDELEA</div>
+  <div class="slider-section">
+    <div class="slider-outer" id="sliderOuter">
+      <div class="slider-track" id="sliderTrack"></div>
+      <div class="sl-arrow l" id="arrowL"><i class="fa fa-chevron-left"></i></div>
+      <div class="sl-arrow r" id="arrowR"><i class="fa fa-chevron-right"></i></div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <div class="spinner" id="spinner"></div>
+
+  <!-- CATEGORIES -->
+  <div class="section-title" id="catTitle" style="display:none">MAKUNDI</div>
+  <div class="categories" id="categories"></div>
+
+  <div class="error-box" id="errorBox" style="display:none">
+    <i class="fa fa-wifi"></i>
+    Hakuna mtandao au data haipatikani<br>
+    <button class="retry-btn" onclick="location.reload()">Jaribu Tena</button>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <a href="home.html"    class="nav-item active"><i class="fa fa-home"></i><span>Nyumbani</span></a>
+    <a href="live.php"     class="nav-item"><i class="fa fa-circle-play"></i><span>Live</span></a>
+    <a href="schedule.php" class="nav-item"><i class="fa fa-calendar-days"></i><span>Ratiba</span></a>
+    <a href="malipo.php"   class="nav-item"><i class="fa fa-credit-card"></i><span>Malipo</span></a>
+    <a href="account.php"  class="nav-item"><i class="fa fa-user"></i><span>Akaunti</span></a>
+  </nav>
+</div>
+
+<script src="_auth_guard.js"></script>
+<script>
+/* ── Particles ── */
+const canvas=document.getElementById('bgCanvas'),ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+const stars=Array.from({length:50},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.4+0.3,vx:(Math.random()-0.5)*0.22,vy:(Math.random()-0.5)*0.22,a:Math.random()*Math.PI*2}));
+(function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);stars.forEach(s=>{s.x+=s.vx;s.y+=s.vy;s.a+=0.008;if(s.x<0)s.x=canvas.width;if(s.x>canvas.width)s.x=0;if(s.y<0)s.y=canvas.height;if(s.y>canvas.height)s.y=0;ctx.save();ctx.globalAlpha=0.2+0.22*Math.sin(s.a);ctx.fillStyle='#00d4ff';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();ctx.restore();});requestAnimationFrame(draw);})();
+window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
+
+/* ── Slider ── */
+const track=document.getElementById('sliderTrack'),dotsEl=document.getElementById('dots'),slOuter=document.getElementById('sliderOuter');
+let slCount=0,slCur=0,slTimer=null;
+
+function slBuild(slides){
+  slCount=slides.length; track.innerHTML=''; dotsEl.innerHTML='';
+  slides.forEach((s,i)=>{
+    const d=document.createElement('div'); d.className='slide';
+    d.innerHTML=`<img src="${s.image_url||''}" alt="" loading="lazy">
+      <div class="slide-overlay"></div>
+      <div class="slide-info"><h3>${s.title||''}</h3><p>${s.description||''}</p></div>
+      <span class="badge badge-live" style="position:absolute;top:10px;right:10px">● LIVE</span>`;
+    if(s.action_value) d.style.cursor='default'; // Hakuna link — picha tu
+    track.appendChild(d);
+    const dot=document.createElement('div'); dot.className='dot'+(i===0?' active':'');
+    dot.onclick=()=>slGo(i); dotsEl.appendChild(dot);
+  });
+  track.style.transition='none'; track.style.transform='translateX(0%)'; slCur=0; slStartAuto();
+}
+function slGo(idx,animate=true){
+  if(!slCount) return;
+  slCur=((idx%slCount)+slCount)%slCount;
+  track.style.transition=animate?'transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94)':'none';
+  track.style.transform=`translateX(-${slCur*100}%)`;
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===slCur));
+}
+function slStartAuto(){clearInterval(slTimer);if(slCount<2)return;slTimer=setInterval(()=>slGo(slCur+1),4500);}
+document.getElementById('arrowL').onclick=e=>{e.stopPropagation();clearInterval(slTimer);slGo(slCur-1);slStartAuto();};
+document.getElementById('arrowR').onclick=e=>{e.stopPropagation();clearInterval(slTimer);slGo(slCur+1);slStartAuto();};
+let tStart=0,tDelta=0,tDrag=false;
+slOuter.addEventListener('touchstart',e=>{tDrag=true;tStart=e.touches[0].clientX;tDelta=0;clearInterval(slTimer);},{passive:true});
+slOuter.addEventListener('touchmove', e=>{if(tDrag)tDelta=e.touches[0].clientX-tStart;},{passive:true});
+slOuter.addEventListener('touchend', ()=>{if(Math.abs(tDelta)>45){tDelta<0?slGo(slCur+1):slGo(slCur-1);}tDrag=false;tDelta=0;slStartAuto();});
+
+/* ── Data ── */
+let slidersOk=false,catsOk=false;
+function chkDone(){if(slidersOk&&catsOk){document.getElementById('spinner').style.display='none';document.getElementById('catTitle').style.display='flex';}}
+
+const fallbackSlides=[
+  {image_url:'https://via.placeholder.com/800x200/08081a/00d4ff?text=⚡+JAYNES+MAX+TV',title:'JAYNES MAX TV',description:'Stream • Live • Enjoy'},
+  {image_url:'https://via.placeholder.com/800x200/08081a/ff4466?text=⚽+MECHI+LIVE',title:'Mechi za Leo',description:'Angalia sasa!'},
+  {image_url:'https://via.placeholder.com/800x200/08081a/ffd700?text=📅+RATIBA',title:'Ratiba za NBC',description:'Angalia wakati'},
+];
+
+fetch('https://zimotv.com/mb/api/get-sliders.php')
+  .then(r=>r.json()).then(j=>{
+    if(!j.success||!j.sliders?.length) throw 0;
+    slBuild(j.sliders); slidersOk=true; chkDone();
+  }).catch(()=>{ slBuild(fallbackSlides); slidersOk=true; chkDone(); });
+
+fetch('categories.php')
+  .then(r=>r.json()).then(j=>{
+    if(!j.success) throw 0;
+    const grid=document.getElementById('categories');
+    j.categories.forEach((cat,i)=>{
+      const d=document.createElement('div'); d.className='cat-card';
+      d.innerHTML=`<img src="${cat.image}" alt="${cat.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x108/101020/00d4ff?text=📺'">
+        <div class="cat-badge">LIVE</div>
+        <div class="cat-info"><h4>${cat.name}</h4><p>${cat.description||'Angalia sasa'}</p></div>`;
+      if(cat.link) d.onclick=()=>location.href=cat.link;
+      grid.appendChild(d);
+      setTimeout(()=>d.classList.add('visible'),80+i*70);
+    });
+    catsOk=true; chkDone();
+  }).catch(()=>{ catsOk=true; chkDone(); document.getElementById('spinner').style.display='none'; });
+
+/* ── Search ── */
+document.getElementById('searchBtn').onclick=doSearch;
+document.getElementById('searchInput').addEventListener('keypress',e=>{if(e.key==='Enter')doSearch();});
+function doSearch(){
+  const q=document.getElementById('searchInput').value.trim();
+  if(q) location.href='search.php?q='+encodeURIComponent(q);
+}
+</script>
+</body>
+</html>

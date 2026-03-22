@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Admin — JAYNES MAX TV</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#04040f;--s1:#080818;--s2:#0d0d22;--s3:#121228;
+  --accent:#00d4ff;--accent2:#ff4466;--gold:#ffd700;--green:#00ff88;--purple:#a855f7;
+  --text:#fff;--muted:#5566aa;--border:rgba(0,212,255,0.1);
+  --glow:0 0 24px rgba(0,212,255,0.25);--glow2:0 0 24px rgba(255,68,102,0.25);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;}
+a{text-decoration:none;color:inherit;}
+body{padding:56px 0 64px;}
+
+.topbar{position:fixed;top:0;left:0;right:0;height:56px;z-index:200;background:rgba(4,4,15,0.96);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 16px;}
+.t-brand{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.t-badge{background:rgba(255,68,102,.15);border:1px solid rgba(255,68,102,.3);color:var(--accent2);font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;letter-spacing:1px;}
+.t-email{font-size:11px;color:var(--muted);margin-left:auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px;}
+.t-logout{width:34px;height:34px;border:1px solid rgba(255,68,102,.25);background:rgba(255,68,102,.08);border-radius:9px;color:var(--accent2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;transition:all .2s;flex-shrink:0;}
+.t-logout:hover{background:rgba(255,68,102,.22);}
+
+.bot-nav{position:fixed;bottom:0;left:0;right:0;height:64px;z-index:200;background:rgba(4,4,15,0.96);backdrop-filter:blur(24px);border-top:1px solid var(--border);display:flex;justify-content:space-around;align-items:center;}
+.bn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 16px;border-radius:12px;cursor:pointer;transition:all .25s;font-size:10px;font-weight:700;color:var(--muted);position:relative;}
+.bn.active{background:rgba(0,212,255,.07);color:var(--accent);}
+.bn:hover{color:var(--accent);}
+.bn i{font-size:18px;}
+.ndot{position:absolute;top:4px;right:10px;width:8px;height:8px;background:var(--accent2);border-radius:50%;border:2px solid var(--bg);animation:blinkanim 1.4s infinite;display:none;}
+@keyframes blinkanim{0%,100%{opacity:1}50%{opacity:.2}}
+
+.page{display:none;min-height:calc(100vh - 120px);padding-bottom:10px;}
+.page.active{display:block;}
+
+/* LOGIN */
+#loginGate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:none;align-items:center;justify-content:center;padding:24px;}
+#loginGate.show{display:flex;}
+.lg-wrap{width:100%;max-width:380px;}
+.lg-logo{text-align:center;margin-bottom:28px;}
+.lg-ico{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,var(--accent2),#aa0022);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 12px;box-shadow:0 0 40px rgba(255,68,102,.4);}
+.lg-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:4px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.lg-sub{font-size:11px;color:var(--muted);letter-spacing:2px;margin-top:4px;}
+.lg-card{background:var(--s2);border:1px solid var(--border);border-radius:20px;padding:24px 20px;}
+.lg-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;}
+.lg-inp{width:100%;padding:13px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:var(--text);font-size:14px;font-family:'Outfit',sans-serif;outline:none;transition:border-color .2s;margin-bottom:16px;}
+.lg-inp:focus{border-color:var(--accent2);}
+.lg-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent2),#cc1133);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.lg-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,68,102,.4);}
+.lg-err{font-size:12px;color:var(--accent2);text-align:center;margin-top:10px;display:none;}
+
+/* SHARED COMPONENTS */
+.s-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 8px;}
+.s-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;display:flex;align-items:center;gap:8px;}
+.s-cnt{background:rgba(0,212,255,.1);border:1px solid var(--border);color:var(--accent);font-size:11px;padding:2px 9px;border-radius:20px;font-family:'Outfit',sans-serif;font-weight:600;}
+.s-rfsh{width:36px;height:36px;background:rgba(0,212,255,.07);border:1px solid var(--border);border-radius:10px;color:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;transition:all .2s;}
+.s-rfsh:hover{background:rgba(0,212,255,.18);}
+.s-rfsh.spinning i{animation:spinr .6s linear infinite;}
+@keyframes spinr{to{transform:rotate(360deg)}}
+
+.f-tabs{display:flex;gap:6px;padding:0 14px 12px;overflow-x:auto;scrollbar-width:none;}
+.f-tabs::-webkit-scrollbar{display:none;}
+.ftab{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;border:1px solid var(--border);color:var(--muted);background:var(--s2);}
+.ftab.active{background:var(--accent);color:#000;border-color:var(--accent);}
+
+.s-bar{margin:0 14px 12px;display:flex;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.s-bar input{flex:1;padding:11px 14px;background:transparent;border:none;outline:none;color:var(--text);font-size:13px;font-family:'Outfit',sans-serif;}
+.s-bar input::placeholder{color:var(--muted);}
+.s-bar button{padding:0 14px;background:rgba(0,212,255,.08);border:none;color:var(--accent);cursor:pointer;font-size:13px;}
+
+/* DASHBOARD */
+.dash-hero{margin:14px;border-radius:18px;padding:22px 18px;position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(255,68,102,.08),rgba(0,212,255,.05));border:1px solid var(--border);}
+.dash-hero::before{content:'';position:absolute;top:-40px;right:-20px;width:180px;height:180px;border-radius:50%;background:radial-gradient(rgba(255,68,102,.12),transparent 70%);pointer-events:none;}
+.dh-lbl{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+.dh-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;}
+.dh-name span{color:var(--accent2);}
+.dh-meta{font-size:11px;color:var(--muted);margin-top:4px;}
+.dh-acts{display:flex;gap:8px;margin-top:14px;}
+.dh-btn{padding:9px 16px;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;}
+.dh-btn.pri{background:var(--accent2);color:#fff;}
+.dh-btn.pri:hover{transform:translateY(-1px);box-shadow:var(--glow2);}
+.dh-btn.sec{background:rgba(0,212,255,.1);border:1px solid var(--border);color:var(--accent);}
+.dh-btn.sec:hover{background:rgba(0,212,255,.2);}
+
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 14px 4px;}
+.stat-card{background:var(--s2);border:1px solid var(--border);border-radius:14px;padding:14px;}
+.stat-ico{font-size:20px;margin-bottom:6px;}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;letter-spacing:1px;}
+.c1{color:var(--accent)}.c2{color:var(--green)}.c3{color:var(--gold)}.c4{color:var(--accent2);}
+.stat-lbl{font-size:10px;color:var(--muted);margin-top:3px;}
+
+.rev-card{margin:14px;background:var(--s2);border:1px solid var(--border);border-radius:14px;padding:16px;}
+.rev-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.rev-ttl{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;}
+.rev-total{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);}
+.rev-bars{display:flex;gap:4px;align-items:flex-end;height:56px;}
+.rbar{flex:1;border-radius:4px 4px 0 0;background:rgba(0,212,255,.15);min-width:0;transition:height .4s;}
+.rbar.today{background:var(--accent);}
+.rev-lbls{display:flex;gap:4px;margin-top:5px;}
+.rlbl{flex:1;text-align:center;font-size:9px;color:var(--muted);}
+
+.sec-lbl{padding:14px 14px 4px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;color:var(--muted);}
+.act-card{margin:0 14px 14px;background:var(--s2);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.act-row{display:flex;align-items:center;gap:11px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.04);}
+.act-row:last-child{border-bottom:none;}
+.act-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.a-green{background:rgba(0,255,136,.1)}.a-red{background:rgba(255,68,102,.1)}.a-blue{background:rgba(0,212,255,.1)}.a-gold{background:rgba(255,215,0,.1);}
+.act-inf{flex:1;min-width:0;}
+.act-main{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.act-sub{font-size:10px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.act-time{font-size:10px;color:var(--muted);flex-shrink:0;}
+
+/* USERS */
+.user-list{padding:0 14px;}
+.u-card{background:var(--s2);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;transition:border-color .2s;}
+.u-card:hover{border-color:rgba(0,212,255,.25);}
+.uc-top{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.u-av{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:#000;flex-shrink:0;}
+.u-inf{flex:1;min-width:0;}
+.u-name{font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.u-email{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.u-badge{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;flex-shrink:0;}
+.ub-p{background:rgba(255,215,0,.1);color:var(--gold);border:1px solid rgba(255,215,0,.25);}
+.ub-t{background:rgba(0,255,136,.1);color:var(--green);border:1px solid rgba(0,255,136,.2);}
+.ub-e{background:rgba(255,68,102,.1);color:var(--accent2);border:1px solid rgba(255,68,102,.2);}
+.ub-f{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid rgba(255,255,255,.1);}
+.u-chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;}
+.u-chip{display:flex;align-items:center;gap:4px;padding:3px 9px;border-radius:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);font-size:10px;color:var(--muted);}
+.u-acts{display:flex;gap:6px;padding-top:10px;border-top:1px solid rgba(255,255,255,.04);}
+.u-btn{flex:1;padding:8px 5px;border:none;border-radius:9px;font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .2s;}
+.u-ext{background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);color:var(--green);}
+.u-ext:hover{background:rgba(0,255,136,.22);}
+.u-rev{background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.2);color:var(--accent2);}
+.u-rev:hover{background:rgba(255,68,102,.22);}
+.u-msg{background:rgba(0,212,255,.07);border:1px solid var(--border);color:var(--accent);}
+.u-msg:hover{background:rgba(0,212,255,.18);}
+.u-plan{background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.25);color:#a855f7;}
+.u-plan:hover{background:rgba(168,85,247,.22);}
+
+/* Plan modal buttons */
+.plan-btns{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
+.plan-btn{width:100%;padding:13px;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .2s;}
+.plan-btn:hover{transform:translateY(-1px);}
+.plan-btn.prem{background:rgba(255,215,0,.15);border:1.5px solid rgba(255,215,0,.3);color:var(--gold);}
+.plan-btn.prem:hover{background:rgba(255,215,0,.25);}
+.plan-btn.trial{background:rgba(0,255,136,.1);border:1.5px solid rgba(0,255,136,.2);color:var(--green);}
+.plan-btn.trial:hover{background:rgba(0,255,136,.2);}
+.plan-btn.expire{background:rgba(255,68,102,.1);border:1.5px solid rgba(255,68,102,.2);color:var(--accent2);}
+.plan-btn.expire:hover{background:rgba(255,68,102,.2);}
+.plan-days-row{display:flex;gap:8px;align-items:center;margin-top:4px;}
+.plan-days-row label{font-size:11px;color:var(--muted);flex-shrink:0;}
+
+/* PAYMENTS */
+.pay-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 14px 10px;}
+.ps-card{background:var(--s2);border:1px solid var(--border);border-radius:14px;padding:13px;}
+.ps-ico{font-size:20px;margin-bottom:4px;}
+.ps-val{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;}
+.ps-pend{color:var(--gold)}.ps-appr{color:var(--green)}.ps-rej{color:var(--accent2)}.ps-rev{color:var(--accent);font-size:18px;}
+.ps-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+
+.pay-list{padding:0 14px;}
+.pay-card{background:var(--s2);border:1px solid var(--border);border-left:3px solid transparent;border-radius:14px;margin-bottom:10px;overflow:hidden;}
+.pay-card.pending{border-left-color:var(--gold);}
+.pay-card.approved{border-left-color:var(--green);}
+.pay-card.rejected{border-left-color:var(--accent2);}
+.pay-hdr{display:flex;align-items:center;justify-content:space-between;padding:11px 14px 7px;}
+.p-st{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;}
+.p-st.pending{background:rgba(255,215,0,.12);color:var(--gold);border:1px solid rgba(255,215,0,.2);}
+.p-st.approved{background:rgba(0,255,136,.12);color:var(--green);border:1px solid rgba(0,255,136,.2);}
+.p-st.rejected{background:rgba(255,68,102,.12);color:var(--accent2);border:1px solid rgba(255,68,102,.2);}
+.pay-date{font-size:10px;color:var(--muted);}
+.pay-body{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px 10px;}
+.pf .lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px;}
+.pf .val{font-size:12px;font-weight:600;}
+.pf .val.acc{color:var(--accent);font-family:monospace;font-size:11px;word-break:break-all;}
+.pf .val.gld{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);}
+.pf .val.grn{color:var(--green);}
+.pf .val.sm{font-size:11px;}
+.pay-acts{display:flex;gap:7px;padding:9px 14px;border-top:1px solid rgba(255,255,255,.04);}
+.pa-btn{flex:1;padding:10px;border:none;border-radius:9px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .2s;}
+.pa-btn:disabled{opacity:.4;cursor:not-allowed;}
+.pa-appr{background:rgba(0,255,136,.1);color:var(--green);border:1px solid rgba(0,255,136,.2);}
+.pa-appr:hover:not(:disabled){background:rgba(0,255,136,.25);}
+.pa-rej{background:rgba(255,68,102,.1);color:var(--accent2);border:1px solid rgba(255,68,102,.2);}
+.pa-rej:hover:not(:disabled){background:rgba(255,68,102,.25);}
+
+/* SETTINGS */
+.set-card{margin:0 14px 12px;background:var(--s2);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.set-row{display:flex;align-items:center;gap:12px;padding:14px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:background .2s;text-decoration:none;color:inherit;}
+.set-row:last-child{border-bottom:none;}
+.set-row:hover{background:rgba(0,212,255,.03);}
+.set-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.si-b{background:rgba(0,212,255,.1);color:var(--accent)}.si-r{background:rgba(255,68,102,.1);color:var(--accent2)}.si-g{background:rgba(0,255,136,.1);color:var(--green)}.si-y{background:rgba(255,215,0,.1);color:var(--gold)}.si-p{background:rgba(168,85,247,.1);color:var(--purple);}
+.set-txt{flex:1;}
+.set-lbl{font-size:13px;font-weight:600;}
+.set-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.set-arr{color:rgba(255,255,255,.15);font-size:12px;}
+.toggle{width:42px;height:23px;background:rgba(255,255,255,.1);border-radius:12px;position:relative;cursor:pointer;transition:background .25s;flex-shrink:0;}
+.toggle.on{background:var(--green);}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:#fff;transition:transform .25s;}
+.toggle.on::after{transform:translateX(19px);}
+
+/* MODALS */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-bg.show{display:flex;}
+.modal{background:var(--s2);border:1px solid var(--border);border-radius:20px;padding:22px;width:100%;max-width:360px;animation:mIn .25s ease;}
+@keyframes mIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal h3{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:2px;margin-bottom:5px;}
+.modal p{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px;}
+.m-info{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px;margin-bottom:12px;}
+.mi-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;}
+.mi-row:last-child{margin-bottom:0;}
+.mi-lbl{color:var(--muted);}
+.mi-val{font-weight:700;}
+.m-inp{width:100%;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:var(--text);font-size:13px;font-family:'Outfit',sans-serif;outline:none;margin-bottom:12px;}
+.m-inp:focus{border-color:var(--accent);}
+.m-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235566aa'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
+.m-btns{display:flex;gap:8px;}
+.m-btn{flex:1;padding:12px;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;}
+.m-cancel{background:rgba(255,255,255,.07);color:var(--muted);}
+.m-cancel:hover{background:rgba(255,255,255,.14);}
+.m-approve{background:var(--green);color:#000;}
+.m-approve:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,255,136,.3);}
+.m-reject{background:var(--accent2);color:#fff;}
+.m-reject:hover{transform:translateY(-1px);box-shadow:var(--glow2);}
+.m-extend{background:var(--accent);color:#000;}
+.m-extend:hover{transform:translateY(-1px);box-shadow:var(--glow);}
+
+.spinner{width:36px;height:36px;border:3px solid rgba(0,212,255,.1);border-top-color:var(--accent);border-radius:50%;animation:spinr .75s linear infinite;margin:32px auto;display:block;}
+.empty-state{text-align:center;padding:36px 20px;color:var(--muted);}
+.empty-state i{font-size:34px;display:block;margin-bottom:10px;opacity:.25;}
+
+.toast{position:fixed;top:68px;left:50%;transform:translateX(-50%) translateY(-8px);background:rgba(0,212,255,.95);color:#000;font-weight:700;font-size:13px;padding:9px 20px;border-radius:30px;opacity:0;transition:all .28s;z-index:9999;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- LOGIN GATE -->
+<div id="loginGate" class="show">
+  <div class="lg-wrap">
+    <div class="lg-logo">
+      <div class="lg-ico">🛡️</div>
+      <div class="lg-title">JAYNES MAX TV</div>
+      <div class="lg-sub">ADMIN PANEL</div>
+    </div>
+    <div class="lg-card">
+      <label class="lg-lbl">Barua Pepe ya Admin</label>
+      <input class="lg-inp" type="email" id="lgEmail" placeholder="admin@example.com"
+        onkeyup="if(event.key==='Enter')doLogin()">
+      <div class="lg-err" id="lgErr"></div>
+      <button class="lg-btn" onclick="doLogin()">
+        <i class="fa fa-shield-halved"></i> INGIA KAMA ADMIN
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="t-brand">JAYNES MAX</div>
+  <div class="t-badge"><i class="fa fa-shield-halved"></i> ADMIN</div>
+  <div class="t-email" id="tEmail"></div>
+  <div class="t-logout" onclick="doLogout()" title="Toka"><i class="fa fa-right-from-bracket"></i></div>
+</div>
+
+<!-- DASHBOARD PAGE -->
+<div class="page active" id="pgDash">
+  <div class="dash-hero">
+    <div class="dh-lbl">KARIBU, ADMIN</div>
+    <div class="dh-name">JAYNES <span>MAX TV</span></div>
+    <div class="dh-meta" id="dashMeta">Inapakia takwimu...</div>
+    <div class="dh-acts">
+      <button class="dh-btn pri" onclick="navTo('pgPay',2)"><i class="fa fa-clock"></i> Malipo Pending</button>
+      <button class="dh-btn sec" onclick="refreshAll()"><i class="fa fa-rotate-right"></i> Refresh</button>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-ico">👥</div><div class="stat-val c1" id="stU">—</div><div class="stat-lbl">Watumiaji Wote</div></div>
+    <div class="stat-card"><div class="stat-ico">👑</div><div class="stat-val c2" id="stP">—</div><div class="stat-lbl">Premium Active</div></div>
+    <div class="stat-card"><div class="stat-ico">⏳</div><div class="stat-val c3" id="stPn">—</div><div class="stat-lbl">Malipo Pending</div></div>
+    <div class="stat-card"><div class="stat-ico">💰</div><div class="stat-val c4" id="stR">—</div><div class="stat-lbl">Mapato Leo</div></div>
+  </div>
+
+  <div class="sec-lbl">MAPATO YA WIKI</div>
+  <div class="rev-card">
+    <div class="rev-hdr">
+      <div class="rev-ttl">JUMLA YA WIKI</div>
+      <div class="rev-total" id="revTot">TSh —</div>
+    </div>
+    <div class="rev-bars" id="revBars"></div>
+    <div class="rev-lbls" id="revLbls"></div>
+  </div>
+
+  <div class="sec-lbl">SHUGHULI ZA HIVI KARIBUNI</div>
+  <div class="act-card" id="actList"><div class="spinner"></div></div>
+</div>
+
+<!-- USERS PAGE -->
+<div class="page" id="pgUsers">
+  <div class="s-hdr">
+    <div class="s-title">WATUMIAJI<span class="s-cnt" id="uCnt">0</span></div>
+    <div class="s-rfsh" id="uRfsh" onclick="loadUsers()"><i class="fa fa-rotate-right"></i></div>
+  </div>
+  <div class="s-bar">
+    <input id="uQ" placeholder="🔍 Tafuta jina au email..." oninput="renderUsers()">
+    <button onclick="renderUsers()"><i class="fa fa-search"></i></button>
+  </div>
+  <div class="f-tabs">
+    <div class="ftab active" onclick="setUF('all',this)">Wote</div>
+    <div class="ftab" onclick="setUF('premium',this)">👑 Premium</div>
+    <div class="ftab" onclick="setUF('trial',this)">🟢 Trial</div>
+    <div class="ftab" onclick="setUF('expired',this)">❌ Expired</div>
+    <div class="ftab" onclick="setUF('free',this)">🔓 Free</div>
+  </div>
+  <div class="user-list" id="userList"><div class="spinner"></div></div>
+</div>
+
+<!-- PAYMENTS PAGE -->
+<div class="page" id="pgPay">
+  <div class="s-hdr">
+    <div class="s-title">MALIPO<span class="s-cnt" id="pCnt">0</span></div>
+    <div class="s-rfsh" id="pRfsh" onclick="loadPays()"><i class="fa fa-rotate-right"></i></div>
+  </div>
+  <div class="pay-stats">
+    <div class="ps-card"><div class="ps-ico">⏳</div><div class="ps-val ps-pend" id="ps1">—</div><div class="ps-lbl">Inasubiri</div></div>
+    <div class="ps-card"><div class="ps-ico">✅</div><div class="ps-val ps-appr" id="ps2">—</div><div class="ps-lbl">Imekubaliwa</div></div>
+    <div class="ps-card"><div class="ps-ico">❌</div><div class="ps-val ps-rej"  id="ps3">—</div><div class="ps-lbl">Imekataliwa</div></div>
+    <div class="ps-card"><div class="ps-ico">💰</div><div class="ps-val ps-rev"  id="ps4">—</div><div class="ps-lbl">Jumla</div></div>
+  </div>
+  <div class="f-tabs">
+    <div class="ftab active" onclick="setPF('all',this)">Yote</div>
+    <div class="ftab" onclick="setPF('pending',this)">⏳ Pending</div>
+    <div class="ftab" onclick="setPF('approved',this)">✅ Approved</div>
+    <div class="ftab" onclick="setPF('rejected',this)">❌ Rejected</div>
+  </div>
+  <div class="pay-list" id="payList"><div class="spinner"></div></div>
+</div>
+
+<!-- SETTINGS PAGE -->
+<div class="page" id="pgSet">
+  <div style="padding:16px 14px 8px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px">MIPANGILIO</div>
+  <div class="set-card">
+    <div class="set-row" onclick="toggleSw('tgM')">
+      <div class="set-ico si-g"><i class="fa fa-satellite-dish"></i></div>
+      <div class="set-txt"><div class="set-lbl">Maintenance Mode</div><div class="set-sub">Zima app kwa muda</div></div>
+      <div class="toggle" id="tgM"></div>
+    </div>
+    <div class="set-row" onclick="toggleSw('tgA')">
+      <div class="set-ico si-b"><i class="fa fa-bolt"></i></div>
+      <div class="set-txt"><div class="set-lbl">Auto-Approve Malipo</div><div class="set-sub">Kubali malipo kiotomatiki</div></div>
+      <div class="toggle" id="tgA"></div>
+    </div>
+  </div>
+
+  <div style="padding:8px 14px 8px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;color:var(--muted)">VIUNGO VYA HARAKA</div>
+  <div class="set-card">
+    <a href="home.html"       class="set-row"><div class="set-ico si-b"><i class="fa fa-home"></i></div><div class="set-txt"><div class="set-lbl">Nyumbani</div><div class="set-sub">home.html</div></div><i class="fa fa-arrow-up-right-from-square set-arr"></i></a>
+    <a href="live.php"        class="set-row"><div class="set-ico si-r"><i class="fa fa-circle-play"></i></div><div class="set-txt"><div class="set-lbl">Live TV</div><div class="set-sub">live.php</div></div><i class="fa fa-arrow-up-right-from-square set-arr"></i></a>
+    <a href="malipo.php"      class="set-row"><div class="set-ico si-y"><i class="fa fa-credit-card"></i></div><div class="set-txt"><div class="set-lbl">Malipo (User)</div><div class="set-sub">malipo.php</div></div><i class="fa fa-arrow-up-right-from-square set-arr"></i></a>
+    <a href="schedule.php"    class="set-row"><div class="set-ico si-g"><i class="fa fa-calendar-days"></i></div><div class="set-txt"><div class="set-lbl">Ratiba za Mechi</div><div class="set-sub">schedule.php</div></div><i class="fa fa-arrow-up-right-from-square set-arr"></i></a>
+    <a href="admin_malipo.php" class="set-row"><div class="set-ico si-p"><i class="fa fa-list-check"></i></div><div class="set-txt"><div class="set-lbl">Admin Malipo (Zamani)</div><div class="set-sub">admin_malipo.php</div></div><i class="fa fa-arrow-up-right-from-square set-arr"></i></a>
+  </div>
+
+  <div style="padding:8px 14px 8px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;color:var(--muted)">DATABASE</div>
+  <div class="set-card">
+    <a href="https://supabase.com/dashboard" target="_blank" class="set-row">
+      <div class="set-ico si-g"><i class="fa fa-database"></i></div>
+      <div class="set-txt"><div class="set-lbl">Supabase Dashboard</div><div class="set-sub">Fungua database moja kwa moja</div></div>
+      <i class="fa fa-arrow-up-right-from-square set-arr"></i>
+    </a>
+  </div>
+
+  <div style="padding:8px 14px 8px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;color:var(--muted)">AKAUNTI</div>
+  <div class="set-card">
+    <div class="set-row" onclick="doLogout()">
+      <div class="set-ico si-r"><i class="fa fa-right-from-bracket"></i></div>
+      <div class="set-txt"><div class="set-lbl">Toka (Logout)</div><div class="set-sub">Ondoka kwenye admin panel</div></div>
+      <i class="fa fa-chevron-right set-arr"></i>
+    </div>
+  </div>
+  <div style="height:10px"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bot-nav">
+  <div class="bn active" id="bn0" onclick="navTo('pgDash',0)"><i class="fa fa-gauge"></i><span>Dashboard</span></div>
+  <div class="bn"        id="bn1" onclick="navTo('pgUsers',1)"><i class="fa fa-users"></i><span>Watumiaji</span></div>
+  <div class="bn"        id="bn2" onclick="navTo('pgPay',2)"><i class="fa fa-credit-card"></i><span>Malipo</span><div class="ndot" id="ndot"></div></div>
+  <div class="bn"        id="bn3" onclick="navTo('pgSet',3)"><i class="fa fa-gear"></i><span>Settings</span></div>
+</nav>
+
+<!-- MODAL: Approve/Reject Payment -->
+<div class="modal-bg" id="mPay">
+  <div class="modal">
+    <h3 id="mpTitle">THIBITISHA</h3>
+    <p id="mpDesc"></p>
+    <div class="m-info" id="mpInfo"></div>
+    <input class="m-inp" id="mpNote" placeholder="Maelezo (hiari)">
+    <div class="m-btns">
+      <button class="m-btn m-cancel" onclick="closeM('mPay')">Ghairi</button>
+      <button class="m-btn" id="mpBtn" onclick="confirmPay()">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Plan Management -->
+<div class="modal-bg" id="mPlan">
+  <div class="modal">
+    <h3>⚙️ SIMAMIA PLAN</h3>
+    <p>Badilisha hali ya subscription ya mtumiaji huyu.</p>
+    <div class="m-info" id="mpInfo"></div>
+
+    <div class="plan-days-row">
+      <label><i class="fa fa-calendar" style="color:var(--accent)"></i> Siku za Premium/Trial:</label>
+      <select class="m-inp m-select" id="mpDays" style="flex:1;margin-bottom:0">
+        <option value="7">7 siku — Wiki 1</option>
+        <option value="30" selected>30 siku — Mwezi 1</option>
+        <option value="90">90 siku — Miezi 3</option>
+        <option value="180">180 siku — Miezi 6</option>
+        <option value="365">365 siku — Mwaka 1</option>
+      </select>
+    </div>
+
+    <div class="plan-btns">
+      <button class="plan-btn prem" onclick="setPlan('premium')">
+        <i class="fa fa-crown" style="font-size:18px"></i>
+        <div style="text-align:left">
+          <div>Weka PREMIUM</div>
+          <div style="font-size:10px;opacity:.7;font-weight:400">Atapata access kamili kwa siku zilizochaguliwa</div>
+        </div>
+      </button>
+      <button class="plan-btn trial" onclick="setPlan('trial')">
+        <i class="fa fa-star" style="font-size:18px"></i>
+        <div style="text-align:left">
+          <div>Weka TRIAL</div>
+          <div style="font-size:10px;opacity:.7;font-weight:400">Trial ya siku zilizochaguliwa</div>
+        </div>
+      </button>
+      <button class="plan-btn expire" onclick="setPlan('expired')">
+        <i class="fa fa-ban" style="font-size:18px"></i>
+        <div style="text-align:left">
+          <div>Weka EXPIRED / FREE</div>
+          <div style="font-size:10px;opacity:.7;font-weight:400">Futa subscription yake mara moja</div>
+        </div>
+      </button>
+    </div>
+
+    <div class="m-btns">
+      <button class="m-btn m-cancel" onclick="closeM('mPlan')">Ghairi</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Extend Subscription -->
+<div class="modal-bg" id="mExt">
+  <div class="modal">
+    <h3>ONGEZA SIKU</h3>
+    <p>Ongeza siku za subscription kwa mtumiaji huyu.</p>
+    <div class="m-info" id="meInfo"></div>
+    <select class="m-inp m-select" id="meDays">
+      <option value="7">Siku 7 — Wiki 1</option>
+      <option value="30" selected>Siku 30 — Mwezi 1</option>
+      <option value="90">Siku 90 — Miezi 3</option>
+      <option value="180">Siku 180 — Miezi 6</option>
+      <option value="365">Siku 365 — Mwaka 1</option>
+    </select>
+    <div class="m-btns">
+      <button class="m-btn m-cancel" onclick="closeM('mExt')">Ghairi</button>
+      <button class="m-btn m-extend" onclick="confirmExt()">ONGEZA</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+//  CONFIG — badilisha hapa kama inahitajika
+// ════════════════════════════════════════
+const SB_URL = 'https://dablnrggyfcddmdeiqxi.supabase.co';
+const SB_SVC = 'sb_secret_VlGl6UXSTT8CB_YIqJZ-zw_anyyL2d2';
+const ADMINS = ['swajayfour@gmail.com', 'jaynestvmax@gmail.com'];
+
+// ════════════════════════════════════════
+//  SUPABASE via PROXY (bypasses RLS safely)
+// ════════════════════════════════════════
+// Tumia admin_proxy.php ili kuzuia tatizo la RLS
+// PHP server inaweza bypass RLS na service key
+
+async function sbGet(path) {
+  try {
+    const r = await fetch('admin_proxy.php?path=' + encodeURIComponent(path));
+    if (!r.ok) {
+      console.warn('[sbGet proxy]', r.status, path);
+      return [];
+    }
+    const d = await r.json();
+    if (Array.isArray(d)) return d;
+    if (d?.error) { console.warn('[sbGet proxy] error:', d.error); return []; }
+    return [];
+  } catch(e) { console.error('[sbGet proxy]', e); return []; }
+}
+
+async function sbPatch(path, body) {
+  try {
+    const r = await fetch('admin_proxy.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path, body, method: 'PATCH' }),
+    });
+    const d = await r.json().catch(() => ({}));
+    return d.ok === true || r.ok;
+  } catch(e) { console.error('[sbPatch proxy]', e); return false; }
+}
+
+async function sbCount(table) {
+  try {
+    const r = await fetch('admin_proxy.php?path=' + encodeURIComponent(`/rest/v1/${table}?select=id&limit=1`));
+    if (!r.ok) return 0;
+    const d = await r.json();
+    return Array.isArray(d) ? (d.length >= 1 ? '1+' : 0) : 0;
+  } catch { return 0; }
+}
+
+async function sbPost(path, body) {
+  try {
+    const r = await fetch('admin_proxy.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path, body, method: 'POST' }),
+    });
+    const d = await r.json().catch(() => ({}));
+    return d.ok === true || r.ok;
+  } catch(e) { console.error('[sbPost proxy]', e); return false; }
+}
+
+// ════════════════════════════════════════
+//  AUTH
+// ════════════════════════════════════════
+let myEmail = '';
+
+function checkAuth() {
+  const saved = localStorage.getItem('adm_e') || localStorage.getItem('jaynesEmail') || '';
+  if (saved && ADMINS.includes(saved.toLowerCase())) {
+    myEmail = saved.toLowerCase();
+    boot();
+  } else {
+    document.getElementById('loginGate').classList.add('show');
+  }
+}
+
+function doLogin() {
+  const e = (document.getElementById('lgEmail').value || '').trim().toLowerCase();
+  const err = document.getElementById('lgErr');
+  err.style.display = 'none';
+  if (!e) { err.textContent = 'Weka email yako'; err.style.display = 'block'; return; }
+  if (!ADMINS.includes(e)) { err.textContent = 'Huna ruhusa ya admin'; err.style.display = 'block'; return; }
+  myEmail = e;
+  localStorage.setItem('adm_e', e);
+  document.getElementById('loginGate').classList.remove('show');
+  boot();
+}
+
+function doLogout() {
+  localStorage.removeItem('adm_e');
+  myEmail = '';
+  document.getElementById('loginGate').classList.add('show');
+  toast('Umetoka. Tutaonana! 👋');
+}
+
+function boot() {
+  document.getElementById('tEmail').textContent = myEmail;
+  loadSettings();
+  refreshAll();
+}
+
+// ════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════
+function navTo(pageId, idx) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  document.querySelectorAll('.bn').forEach((n, i) => i===idx ? n.classList.add('active') : n.classList.remove('active'));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (pageId === 'pgUsers' && !uLoaded) loadUsers();
+  if (pageId === 'pgPay'   && !pLoaded) loadPays();
+}
+
+// sbGet, sbPatch, sbCount defined above via proxy
+
+// ════════════════════════════════════════
+//  REFRESH ALL
+// ════════════════════════════════════════
+function refreshAll() {
+  loadDash();
+  if (uLoaded) loadUsers();
+  if (pLoaded) loadPays();
+}
+
+// ════════════════════════════════════════
+//  DASHBOARD
+// ════════════════════════════════════════
+async function loadDash() {
+  document.getElementById('dashMeta').textContent = 'Inapakia...';
+
+  const [users, pays] = await Promise.all([
+    sbGet('/rest/v1/profiles?select=id,email,full_name,plan,sub_end,trial_end,created_at&order=created_at.desc&limit=1000'),
+    sbGet('/rest/v1/payments?select=id,status,amount,email,phone,package,days,reference,notes,admin_note,method,created_at&order=created_at.desc&limit=500'),
+  ]);
+
+  console.log('[Admin] profiles:', users.length, 'payments:', pays.length);
+
+  if (!users.length && !pays.length) {
+    const [uC, pC] = await Promise.all([sbCount('profiles'), sbCount('payments')]);
+    document.getElementById('stU').textContent  = uC || '?';
+    document.getElementById('stPn').textContent = pC || '?';
+    document.getElementById('dashMeta').textContent =
+      `~${uC} watumiaji · ~${pC} malipo${uC||pC?' (RLS limit)':' — angalia RLS policies'}`;
+    return;
+  }
+
+  const now   = new Date();
+  const today = now.toISOString().slice(0,10);
+  const total   = users.length;
+  const premium = users.filter(u => u.plan==='premium' && u.sub_end && new Date(u.sub_end)>now).length;
+  const trial   = users.filter(u => u.plan==='trial' && u.trial_end && new Date(u.trial_end)>now).length;
+  const pending = pays.filter(p => p.status==='pending').length;
+  const todayR  = pays.filter(p => p.status==='approved' && p.created_at?.slice(0,10)===today)
+                     .reduce((s,p) => s+(p.amount||0), 0);
+  const totalR  = pays.filter(p => p.status==='approved').reduce((s,p) => s+(p.amount||0), 0);
+
+  document.getElementById('stU').textContent   = total;
+  document.getElementById('stP').textContent   = premium;
+  document.getElementById('stPn').textContent  = pending;
+  document.getElementById('stR').textContent   = 'TSh ' + (todayR/1000).toFixed(1) + 'K';
+  document.getElementById('dashMeta').textContent =
+    `${total} watumiaji · ${premium} premium · ${trial} trial · ${pending} pending · TSh ${(totalR/1000).toFixed(0)}K jumla`;
+  document.getElementById('ndot').style.display = pending > 0 ? 'block' : 'none';
+
+  // Revenue bars
+  const bEl = document.getElementById('revBars');
+  const lEl = document.getElementById('revLbls');
+  const wd = [];
+  let wk = 0;
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const s = d.toISOString().slice(0,10);
+    const a = pays.filter(p => p.status==='approved' && p.created_at?.slice(0,10)===s)
+                  .reduce((x,p) => x+(p.amount||0), 0);
+    wd.push({ l: d.toLocaleDateString('sw',{weekday:'short'}), a });
+    wk += a;
+  }
+  const mx = Math.max(...wd.map(d=>d.a), 1);
+  bEl.innerHTML = wd.map((d,i) =>
+    `<div class="rbar${i===6?' today':''}" style="height:${Math.max(4, d.a/mx*52)}px" title="TSh ${d.a.toLocaleString()}"></div>`
+  ).join('');
+  lEl.innerHTML = wd.map(d => `<div class="rlbl">${d.l}</div>`).join('');
+  document.getElementById('revTot').textContent = 'TSh ' + wk.toLocaleString();
+
+  // Activity
+  const aEl = document.getElementById('actList');
+  const MIC2 = {mpesa:'💚',tigo:'💙',airtel:'❤️',halo:'🟣'};
+  let items = [];
+  pays.slice(0,10).forEach(p => {
+    const c  = p.status==='approved'?'a-green':p.status==='rejected'?'a-red':'a-gold';
+    const ic = p.status==='approved'?'✅':p.status==='rejected'?'❌':'⏳';
+    const t  = p.status==='approved'?'Malipo yakubaliwa':p.status==='rejected'?'Malipo yalikataliwa':'Ombi jipya la malipo';
+    items.push({ c, i:ic, m:`${t} — ${p.email||'?'}`,
+      s:`TSh ${Number(p.amount||0).toLocaleString()} · ${p.package||'—'} ${MIC2[p.method]||''}`,
+      ts: p.created_at });
+  });
+  users.slice(0,5).forEach(u => {
+    items.push({ c:'a-blue', i:'👤', m:'Mtumiaji mpya amesajili', s: u.full_name||u.email||'—', ts: u.created_at });
+  });
+  items.sort((a,b) => new Date(b.ts)-new Date(a.ts));
+  aEl.innerHTML = items.slice(0,10).map(it => `
+    <div class="act-row">
+      <div class="act-ico ${it.c}">${it.i}</div>
+      <div class="act-inf"><div class="act-main">${esc(it.m)}</div><div class="act-sub">${esc(it.s)}</div></div>
+      <div class="act-time">${ago(it.ts)}</div>
+    </div>`).join('') || '<div class="empty-state"><i class="fa fa-inbox"></i>Hakuna shughuli</div>';
+}
+
+// ════════════════════════════════════════
+//  USERS
+// ════════════════════════════════════════
+let allU = [], uLoaded = false, uF = 'all';
+
+async function loadUsers() {
+  uLoaded = true;
+  const btn = document.getElementById('uRfsh'); btn.classList.add('spinning');
+  document.getElementById('userList').innerHTML = '<div class="spinner"></div>';
+
+  const r = await sbGet('/rest/v1/profiles?select=id,email,full_name,phone,plan,sub_end,trial_end,created_at&order=created_at.desc&limit=1000');
+  allU = Array.isArray(r) ? r : [];
+  console.log('[Admin] users:', allU.length);
+
+  if (!allU.length) {
+    document.getElementById('userList').innerHTML = `
+      <div class="empty-state">
+        <i class="fa fa-triangle-exclamation" style="color:var(--accent2)"></i>
+        <p style="color:var(--accent2);margin-top:8px">Hakuna watumiaji — angalia:<br>1. RLS policy ya <code>profiles</code><br>2. Service key ina ruhusa ya SELECT</p>
+      </div>`;
+    btn.classList.remove('spinning'); return;
+  }
+
+  document.getElementById('uCnt').textContent = allU.length;
+  renderUsers();
+  btn.classList.remove('spinning');
+}
+
+function setUF(f, el) {
+  uF = f;
+  document.querySelectorAll('#pgUsers .ftab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderUsers();
+}
+
+function renderUsers() {
+  const q   = (document.getElementById('uQ').value || '').trim().toLowerCase();
+  const now = new Date();
+  const list = allU.filter(u => {
+    const txt = ((u.full_name||'') + ' ' + (u.email||'')).toLowerCase();
+    if (q && !txt.includes(q)) return false;
+    if (uF==='premium') return u.plan==='premium' && u.sub_end && new Date(u.sub_end)>now;
+    if (uF==='trial')   return u.plan==='trial' && u.trial_end && new Date(u.trial_end)>now;
+    if (uF==='expired') return (u.plan==='premium'||u.plan==='trial') &&
+                               (!u.sub_end||new Date(u.sub_end)<=now) &&
+                               (!u.trial_end||new Date(u.trial_end)<=now);
+    if (uF==='free')    return !u.plan || u.plan==='free';
+    return true;
+  });
+  document.getElementById('uCnt').textContent = list.length;
+  const el = document.getElementById('userList');
+  if (!list.length) { el.innerHTML = '<div class="empty-state"><i class="fa fa-user-slash"></i>Hakuna watumiaji</div>'; return; }
+
+  el.innerHTML = list.map(u => {
+    let bc='ub-f', bt='Free';
+    if (u.plan==='premium' && u.sub_end && new Date(u.sub_end)>now)      { bc='ub-p'; bt='👑 Premium'; }
+    else if (u.plan==='trial' && u.trial_end && new Date(u.trial_end)>now){ bc='ub-t'; bt='🟢 Trial'; }
+    else if (u.plan==='premium'||u.plan==='trial')                         { bc='ub-e'; bt='❌ Expired'; }
+
+    const ini    = (u.full_name||u.email||'?')[0].toUpperCase();
+    const jn     = u.created_at ? new Date(u.created_at).toLocaleDateString('sw') : '—';
+    const se     = u.sub_end ? new Date(u.sub_end).toLocaleDateString('sw')
+                 : u.trial_end ? new Date(u.trial_end).toLocaleDateString('sw') : '—';
+    const nEsc   = esc(u.full_name||'—');
+    const eEsc   = esc(u.email||'—');
+    const safeN  = (u.full_name||'').replace(/'/g,"\\'");
+    const safeE  = (u.email||'').replace(/'/g,"\\'");
+
+    return `<div class="u-card">
+      <div class="uc-top">
+        <div class="u-av">${ini}</div>
+        <div class="u-inf"><div class="u-name">${nEsc}</div><div class="u-email">${eEsc}</div></div>
+        <div class="u-badge ${bc}">${bt}</div>
+      </div>
+      <div class="u-chips">
+        <div class="u-chip"><i class="fa fa-calendar"></i>${jn}</div>
+        <div class="u-chip"><i class="fa fa-clock"></i>Hadi: ${se}</div>
+        <div class="u-chip"><i class="fa fa-phone"></i>${esc(u.phone||'—')}</div>
+      </div>
+      <div class="u-acts">
+        <button class="u-btn u-plan" onclick="openPlan('${u.id}','${safeN}','${safeE}','${u.plan||'free'}','${u.sub_end||''}','${u.trial_end||''}')">
+          <i class="fa fa-crown"></i> Plan
+        </button>
+        <button class="u-btn u-ext" onclick="openExt('${u.id}','${safeN}','${safeE}','${u.sub_end||''}')">
+          <i class="fa fa-plus"></i> Ongeza
+        </button>
+        <button class="u-btn u-rev" onclick="revokeU('${u.id}','${safeE}')">
+          <i class="fa fa-ban"></i> Revoke
+        </button>
+        <a href="mailto:${safeE}" class="u-btn u-msg"><i class="fa fa-envelope"></i></a>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── PLAN MANAGEMENT ────────────────────────────────
+let planD = null;
+
+function openPlan(uid, name, email, plan, subEnd, trialEnd) {
+  planD = { uid, email };
+  const planLabel = plan==='premium' ? '👑 Premium' : plan==='trial' ? '🟢 Trial' : '⚪ Free';
+  const endDate = subEnd ? new Date(subEnd).toLocaleDateString('sw')
+                : trialEnd ? new Date(trialEnd).toLocaleDateString('sw') : '—';
+  document.getElementById('mpInfo').innerHTML = `
+    <div class="mi-row"><span class="mi-lbl">Jina</span><span class="mi-val">${esc(name)}</span></div>
+    <div class="mi-row"><span class="mi-lbl">Email</span><span class="mi-val">${esc(email)}</span></div>
+    <div class="mi-row"><span class="mi-lbl">Plan Sasa</span><span class="mi-val">${planLabel}</span></div>
+    <div class="mi-row"><span class="mi-lbl">Inaisha</span><span class="mi-val">${endDate}</span></div>`;
+  document.getElementById('mPlan').classList.add('show');
+}
+
+async function setPlan(type) {
+  if (!planD) return;
+  const days = parseInt(document.getElementById('mpDays').value) || 30;
+  const uid  = planD.uid;
+  const email = planD.email;
+  closeM('mPlan');
+
+  let payload = {};
+  let msg = '';
+
+  if (type === 'premium') {
+    const subEnd = new Date(Date.now() + days * 86400000).toISOString();
+    payload = { plan: 'premium', sub_end: subEnd, trial_end: null };
+    msg = `✅ ${email} — Premium hadi ${new Date(subEnd).toLocaleDateString('sw')}`;
+  } else if (type === 'trial') {
+    const trialEnd = new Date(Date.now() + days * 86400000).toISOString();
+    payload = { plan: 'trial', trial_end: trialEnd, sub_end: null };
+    msg = `✅ ${email} — Trial hadi ${new Date(trialEnd).toLocaleDateString('sw')}`;
+  } else if (type === 'expired') {
+    payload = { plan: 'free', sub_end: null, trial_end: null };
+    msg = `✅ ${email} — Imefutwa (Free)`;
+  }
+
+  // Tumia server-side proxy ili ikwepe RLS
+  try {
+    const res = await fetch('pay_submit.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action:  'set_plan',
+        user_id: uid,
+        email:   email,
+        plan:    payload.plan,
+        sub_end: payload.sub_end || null,
+        trial_end: payload.trial_end || null,
+      }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      toast(msg);
+      loadUsers();
+      loadDash();
+    } else {
+      // Jaribu moja kwa moja kama server haikufanya kazi
+      const ok = await sbPatch('/rest/v1/profiles?id=eq.'+uid, payload);
+      if (ok) { toast(msg); loadUsers(); loadDash(); }
+      else toast('❌ Imeshindwa. Angalia Supabase RLS.');
+    }
+  } catch(e) {
+    const ok = await sbPatch('/rest/v1/profiles?id=eq.'+uid, payload);
+    if (ok) { toast(msg); loadUsers(); loadDash(); }
+    else toast('❌ Tatizo: ' + e.message);
+  }
+  planD = null;
+}
+
+let extD = null;
+function openExt(uid, name, email, sub) {
+  extD = { uid, email };
+  document.getElementById('meInfo').innerHTML = `
+    <div class="mi-row"><span class="mi-lbl">Jina</span><span class="mi-val">${esc(name)}</span></div>
+    <div class="mi-row"><span class="mi-lbl">Email</span><span class="mi-val">${esc(email)}</span></div>
+    <div class="mi-row"><span class="mi-lbl">Sub End</span><span class="mi-val">${sub?new Date(sub).toLocaleDateString('sw'):'Haijawekwa'}</span></div>`;
+  document.getElementById('mExt').classList.add('show');
+}
+
+async function confirmExt() {
+  if (!extD) return;
+  const days = parseInt(document.getElementById('meDays').value);
+  const u = allU.find(x => x.id===extD.uid);
+  closeM('mExt');
+  const base = (u?.sub_end && new Date(u.sub_end)>new Date()) ? new Date(u.sub_end) : new Date();
+  base.setDate(base.getDate() + days);
+  const ok = await sbPatch('/rest/v1/profiles?id=eq.'+extD.uid, { plan:'premium', sub_end: base.toISOString() });
+  if (ok) { toast('✅ Subscription imeongezwa siku '+days); loadUsers(); loadDash(); }
+  else      toast('❌ Imeshindwa. Jaribu tena.');
+  extD = null;
+}
+
+async function revokeU(uid, email) {
+  if (!confirm(`Futa subscription ya ${email}?`)) return;
+  const ok = await sbPatch('/rest/v1/profiles?id=eq.'+uid, { plan:'free', sub_end:null, trial_end:null });
+  if (ok) { toast('✅ Subscription imefutwa'); loadUsers(); }
+  else      toast('❌ Imeshindwa');
+}
+
+// ════════════════════════════════════════
+//  PAYMENTS
+// ════════════════════════════════════════
+let allP = [], pLoaded = false, pF = 'all', payAct = null;
+const MIC  = { mpesa:'💚', tigo:'💙', airtel:'❤️', halo:'🟣' };
+const SLB  = { pending:'Inasubiri', approved:'Imekubaliwa', rejected:'Imekataliwa' };
+
+async function loadPays() {
+  pLoaded = true;
+  const btn = document.getElementById('pRfsh'); btn.classList.add('spinning');
+  document.getElementById('payList').innerHTML = '<div class="spinner"></div>';
+
+  const r = await sbGet('/rest/v1/payments?select=id,email,phone,amount,package,days,method,reference,notes,status,admin_note,created_at,updated_at&order=created_at.desc&limit=500');
+  allP = Array.isArray(r) ? r : [];
+
+  const pend = allP.filter(p=>p.status==='pending').length;
+  const appr = allP.filter(p=>p.status==='approved').length;
+  const rej  = allP.filter(p=>p.status==='rejected').length;
+  const rev  = allP.filter(p=>p.status==='approved').reduce((s,p)=>s+(p.amount||0),0);
+
+  document.getElementById('ps1').textContent = pend;
+  document.getElementById('ps2').textContent = appr;
+  document.getElementById('ps3').textContent = rej;
+  document.getElementById('ps4').textContent = 'TSh '+(rev/1000).toFixed(0)+'K';
+  document.getElementById('pCnt').textContent = allP.length;
+  document.getElementById('ndot').style.display = pend>0 ? 'block' : 'none';
+
+  renderPays();
+  btn.classList.remove('spinning');
+}
+
+function setPF(f, el) {
+  pF = f;
+  document.querySelectorAll('#pgPay .ftab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderPays();
+}
+
+function renderPays() {
+  const list = pF==='all' ? allP : allP.filter(p=>p.status===pF);
+  const el   = document.getElementById('payList');
+  if (!list.length) { el.innerHTML = '<div class="empty-state"><i class="fa fa-inbox"></i>Hakuna malipo</div>'; return; }
+
+  el.innerHTML = list.map(p => {
+    const d  = new Date(p.created_at);
+    const dt = d.toLocaleDateString('sw')+' '+d.toLocaleTimeString('sw',{hour:'2-digit',minute:'2-digit'});
+    const ip = p.status==='pending';
+    const sid = p.id.toString();
+    const sem = (p.email||'').replace(/'/g,"\\'");
+    const spk = (p.package||'').replace(/'/g,"\\'");
+
+    return `<div class="pay-card ${p.status}">
+      <div class="pay-hdr">
+        <span class="p-st ${p.status}">${SLB[p.status]||p.status}</span>
+        <span class="pay-date">${dt}</span>
+      </div>
+      <div class="pay-body">
+        <div class="pf"><div class="lbl">Mtumiaji</div><div class="val sm">${esc(p.email||'—')}</div></div>
+        <div class="pf"><div class="lbl">Simu</div><div class="val acc">${esc(p.phone||'—')}</div></div>
+        <div class="pf"><div class="lbl">Package</div><div class="val grn">${MIC[p.method]||''} ${esc(p.package||'—')}</div></div>
+        <div class="pf"><div class="lbl">Kiasi</div><div class="val gld">TSh ${Number(p.amount||0).toLocaleString()}</div></div>
+        <div class="pf" style="grid-column:1/-1"><div class="lbl">Transaction ID</div><div class="val acc">${esc(p.reference||'—')}</div></div>
+        ${p.notes?`<div class="pf" style="grid-column:1/-1"><div class="lbl">Maelezo</div><div class="val sm">${esc(p.notes)}</div></div>`:''}
+        ${p.admin_note?`<div class="pf" style="grid-column:1/-1"><div class="lbl" style="color:var(--accent2)">Jibu Admin</div><div class="val sm" style="color:var(--accent2)">${esc(p.admin_note)}</div></div>`:''}
+      </div>
+      <div class="pay-acts">
+        ${ip ? `
+          <button class="pa-btn pa-appr" onclick="openPayM('approve','${sid}','${sem}','${spk}',${p.days||30},${p.amount||0})">
+            <i class="fa fa-check"></i> Kubali
+          </button>
+          <button class="pa-btn pa-rej" onclick="openPayM('reject','${sid}','${sem}','${spk}',0,${p.amount||0})">
+            <i class="fa fa-times"></i> Kataa
+          </button>` :
+          `<button class="pa-btn" disabled>
+            <i class="fa fa-${p.status==='approved'?'check-circle':'times-circle'}"></i> ${SLB[p.status]||p.status}
+          </button>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openPayM(act, id, email, pkg, days, amt) {
+  payAct = { act, id, email, pkg, days, amt };
+  const isA = act==='approve';
+  document.getElementById('mpTitle').textContent = isA ? '✅ KUBALI MALIPO' : '❌ KATAA MALIPO';
+  document.getElementById('mpDesc').textContent  = isA ? 'Thibitisha malipo na uwashe subscription.' : 'Kataa malipo haya.';
+  document.getElementById('mpInfo').innerHTML = `
+    <div class="mi-row"><span class="mi-lbl">Mtumiaji</span><span class="mi-val">${esc(email)}</span></div>
+    <div class="mi-row"><span class="mi-lbl">Package</span><span class="mi-val">${esc(pkg)}</span></div>
+    <div class="mi-row"><span class="mi-lbl">Kiasi</span><span class="mi-val" style="color:var(--gold)">TSh ${Number(amt).toLocaleString()}</span></div>
+    ${isA?`<div class="mi-row"><span class="mi-lbl">Siku</span><span class="mi-val" style="color:var(--green)">${days} siku</span></div>`:''}`;
+  document.getElementById('mpNote').value = '';
+  document.getElementById('mpNote').placeholder = isA ? 'Ujumbe kwa mtumiaji (hiari)' : 'Sababu ya kukataa (hiari)';
+  const btn = document.getElementById('mpBtn');
+  btn.className = 'm-btn ' + (isA ? 'm-approve' : 'm-reject');
+  btn.textContent = isA ? 'KUBALI' : 'KATAA';
+  document.getElementById('mPay').classList.add('show');
+}
+
+async function confirmPay() {
+  if (!payAct) return;
+  const { act, id, email, days } = payAct;
+  const note = document.getElementById('mpNote').value.trim();
+  closeM('mPay');
+
+  if (act === 'approve') {
+    const ok1 = await sbPatch('/rest/v1/payments?id=eq.'+id, {
+      status:'approved', admin_note:note||null, updated_at:new Date().toISOString()
+    });
+    if (!ok1) { toast('❌ Imeshindwa kusasisha payment'); return; }
+
+    // Tafuta profile kwa email — then extend subscription
+    const profs = await sbGet('/rest/v1/profiles?email=eq.'+encodeURIComponent(email)+'&select=id,sub_end');
+    if (profs.length) {
+      const prof = profs[0];
+      const base = (prof.sub_end && new Date(prof.sub_end)>new Date()) ? new Date(prof.sub_end) : new Date();
+      base.setDate(base.getDate() + days);
+      const ok2 = await sbPatch('/rest/v1/profiles?id=eq.'+prof.id, { plan:'premium', sub_end: base.toISOString() });
+      toast(ok2 ? '✅ Imekubaliwa! Subscription imewashwa kwa siku '+days+'.' : '⚠️ Malipo yakubaliwa lakini subscription haikuwashwa.');
+    } else {
+      toast('⚠️ Malipo yakubaliwa. Profile haikupatikana kwa: ' + email);
+    }
+  } else {
+    const ok = await sbPatch('/rest/v1/payments?id=eq.'+id, {
+      status:'rejected', admin_note:note||null, updated_at:new Date().toISOString()
+    });
+    toast(ok ? '❌ Imekataliwa.' : '❌ Imeshindwa. Jaribu tena.');
+  }
+  payAct = null;
+  loadPays();
+  loadDash();
+}
+
+// ════════════════════════════════════════
+//  SETTINGS — Hifadhi kwenye Supabase
+// ════════════════════════════════════════
+const SETTING_KEYS = { tgM: 'maintenance_mode', tgA: 'auto_approve' };
+
+async function loadSettings() {
+  try {
+    const rows = await sbGet('/rest/v1/settings?select=key,value');
+    if (!Array.isArray(rows)) return;
+    rows.forEach(row => {
+      const elId = Object.keys(SETTING_KEYS).find(k => SETTING_KEYS[k] === row.key);
+      if (elId) {
+        const el = document.getElementById(elId);
+        if (el) { el.classList.toggle('on', row.value === 'true'); }
+      }
+    });
+  } catch(e) { console.warn('[Settings] loadSettings error:', e); }
+}
+
+async function toggleSw(id) {
+  const el  = document.getElementById(id);
+  const key = SETTING_KEYS[id];
+  if (!key) return;
+
+  const newVal = !el.classList.contains('on');
+  el.classList.toggle('on', newVal);
+
+  try {
+    const ok = await sbPatch(`/rest/v1/settings?key=eq.${key}`,
+      { value: String(newVal), updated_at: new Date().toISOString() }
+    );
+    if (ok) {
+      if (id === 'tgM') {
+        toast(newVal ? '🔧 Maintenance imewashwa — app imefungwa kwa watumiaji!' : '✅ Maintenance imezimwa — app inafanya kazi.');
+      } else {
+        toast(newVal ? '⚡ Auto-Approve imewashwa' : '🔴 Auto-Approve imezimwa');
+      }
+    } else {
+      el.classList.toggle('on', !newVal);
+      toast('❌ Imeshindwa kusasisha mipangilio');
+    }
+  } catch(e) {
+    el.classList.toggle('on', !newVal);
+    toast('❌ Tatizo la mtandao');
+    console.error('[Settings] toggleSw error:', e);
+  }
+}
+
+// ════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════
+function closeM(id) {
+  document.getElementById(id).classList.remove('show');
+  payAct = null; extD = null;
+}
+document.querySelectorAll('.modal-bg').forEach(bg =>
+  bg.addEventListener('click', e => { if (e.target===bg) bg.classList.remove('show'); })
+);
+
+function esc(s) {
+  const d = document.createElement('div'); d.textContent = s||''; return d.innerHTML;
+}
+
+function ago(iso) {
+  if (!iso) return '—';
+  const s = (Date.now() - new Date(iso)) / 1000;
+  if (s < 60)    return 'Sasa hivi';
+  if (s < 3600)  return Math.floor(s/60)+'m iliyopita';
+  if (s < 86400) return Math.floor(s/3600)+'h iliyopita';
+  return Math.floor(s/86400)+'d iliyopita';
+}
+
+function toast(m) {
+  const t = document.getElementById('toast');
+  t.textContent = m; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+checkAuth();
+</script>
+</body>
+</html>
