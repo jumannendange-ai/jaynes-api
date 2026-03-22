@@ -7,8 +7,21 @@ Options -Indexes
 </IfModule>
 
 RewriteEngine On
+
+# OPTIONS request — rudisha 200
 RewriteCond %{REQUEST_METHOD} OPTIONS
 RewriteRule ^(.*)$ $1 [R=200,L]
+
+# Kama ni file halisi — itumie moja kwa moja
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Kama ni folder halisi — itumie moja kwa moja
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Kila kitu kingine — elekeza kwenye api_router.php
+RewriteRule ^(.*)$ api_router.php [QSA,L]
 
 <FilesMatch "\.php$">
     Header set Cache-Control "no-cache, no-store"
